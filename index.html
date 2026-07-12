@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Releashion</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f3ec;
+    --card-bg: #fffdf8;
+    --text: #2a2621;
+    --text-sub: #8a7d68;
+    --accent: #a3812f;
+    --accent-hover: #866a26;
+    --border: #e6dcc4;
+    --danger: #8c3a3a;
+    --shadow: 0 2px 14px rgba(64, 48, 16, 0.07);
+    --shadow-lg: 0 12px 40px rgba(40, 30, 10, 0.16);
+    --font-serif: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15130f;
+      --card-bg: #201c15;
+      --text: #efe7d8;
+      --text-sub: #a89b83;
+      --accent: #d3ac63;
+      --accent-hover: #e0be7c;
+      --border: #3b3324;
+      --shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+      --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+  header {
+    padding: 40px 20px 20px;
+    max-width: 960px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    font-family: var(--font-serif);
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin: 0 0 8px;
+    color: var(--text);
+    background: linear-gradient(120deg, var(--accent), var(--text) 65%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header p {
+    margin: 0;
+    color: var(--text-sub);
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+  }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 16px 20px 60px;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 140px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 14px;
+  }
+  .btn {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    transition: background-color .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(163, 129, 47, 0.35);
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-sub);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+  }
+
+  .sync-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--text-sub);
+    letter-spacing: 0.02em;
+  }
+  .events-section { margin-top: 8px; }
+  .events-title {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    letter-spacing: 0.03em;
+    margin: 0 0 12px;
+  }
+  .events-list {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .event-card {
+    flex: 0 0 auto;
+    width: 120px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .event-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .event-card .avatar, .event-card .avatar-placeholder {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+  .event-card .name { font-weight: 600; font-size: 13px; margin-top: 2px; }
+  .event-when { font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: 0.02em; }
+  .event-age { font-size: 11px; color: var(--text-sub); }
+
+  .groups-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    margin-top: 20px;
+  }
+  .group-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--accent);
+  }
+  .group-count {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-sub);
+    letter-spacing: normal;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
+  .avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--bg);
+    border: 1px solid var(--accent);
+  }
+  .avatar-placeholder {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--text-sub);
+  }
+  .card .name { font-family: var(--font-serif); font-weight: 600; font-size: 15.5px; margin-top: 4px; letter-spacing: 0.02em; }
+  .card .meta { font-size: 12px; color: var(--text-sub); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--text-sub);
+    padding: 60px 20px;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Modal */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 16, 8, 0.55);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 10;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 28px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+  }
+  .modal h2 {
+    font-family: var(--font-serif);
+    margin: 0 0 16px;
+    font-size: 19px;
+    letter-spacing: 0.03em;
+  }
+  .photo-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .photo-upload .avatar, .photo-upload .avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
+  }
+  .photo-upload input[type=file] { display: none; }
+  .photo-upload .hint { font-size: 12px; color: var(--text-sub); }
+
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .two-col { display: flex; gap: 8px; }
+  .autocomplete { position: relative; width: 100%; }
+  .two-col .autocomplete { flex: 1; min-width: 0; }
+  .autocomplete-list {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    z-index: 20;
+  }
+  .autocomplete-list.open { display: block; }
+  .autocomplete-item {
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .autocomplete-item:hover, .autocomplete-item.active { background: var(--bg); }
+  .autocomplete-empty {
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-sub);
+  }
+
+  .field-row { display: flex; gap: 8px; }
+  .field-row input[type="text"] { flex: 1; min-width: 0; }
+  .field-row .icon-btn { flex: none; padding: 10px 12px; }
+
+  .modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .modal-actions .right { display: flex; gap: 8px; }
+
+  /* Detail page */
+  .modal-detail { max-width: 560px; text-align: left; }
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .detail-header .avatar, .detail-header .avatar-placeholder {
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+  }
+  .detail-title { flex: 1; min-width: 0; }
+  .detail-title h2 {
+    font-family: var(--font-serif);
+    margin: 0 0 6px;
+    font-size: 20px;
+    letter-spacing: 0.03em;
+    word-break: break-word;
+  }
+  .detail-header-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .detail-section { margin-bottom: 22px; }
+  .detail-section h3 {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .info-row {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-block {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-block:last-child { border-bottom: none; }
+  .info-block > .info-label { display: block; margin-bottom: 8px; }
+  .info-label {
+    width: 84px;
+    flex-shrink: 0;
+    color: var(--text-sub);
+    font-size: 12px;
+    padding-top: 1px;
+  }
+  .info-value { white-space: pre-wrap; word-break: break-word; }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 5px 8px 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chip button {
+    border: none;
+    background: none;
+    color: var(--text-sub);
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    padding: 2px;
+  }
+  .chips-empty { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; }
+  .detail-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 70px;
+  }
+  .add-row { display: flex; flex-direction: column; gap: 8px; }
+  .add-row input {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+  }
+  .add-row button { align-self: flex-end; }
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .photo-grid img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+  }
+  .detail-footer {
+    margin-top: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    text-align: right;
+  }
+  #galleryInput { display: none; }
+  .group-tag {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    background: var(--accent);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Releashion</h1>
+  <p>写真・名前・生年月日・家族構成などを記録しておける名簿です（データはこの端末のブラウザ内に保存されます）</p>
+</header>
+
+<main>
+  <div class="sync-bar">
+    <span class="sync-status" id="syncStatus">未同期（この端末のみ）</span>
+    <button type="button" class="btn btn-ghost" id="googleSignInBtn">Googleでログインして同期</button>
+    <button type="button" class="btn btn-ghost" id="googleSignOutBtn" style="display:none;">ログアウト</button>
+  </div>
+
+  <div class="events-section" id="eventsSection" style="display:none;">
+    <h2 class="events-title">🎉 近づいているお祝い事</h2>
+    <div class="events-list" id="eventsList"></div>
+  </div>
+
+  <div class="toolbar">
+    <input class="search-input" id="searchInput" type="text" placeholder="名前で検索…">
+    <button class="btn btn-ghost" id="exportBtn">⬇ 書き出し</button>
+    <button class="btn btn-ghost" id="importBtn">⬆ 読み込み</button>
+    <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;">
+    <button class="btn btn-primary" id="addBtn">＋ 追加</button>
+  </div>
+
+  <div class="groups-container" id="grid"></div>
+  <div class="empty-state" id="emptyState" style="display:none;">
+    まだ登録がありません。「＋ 追加」から最初の人を登録しましょう。
+  </div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modalTitle">新しく追加</h2>
+    <form id="personForm">
+      <div class="photo-upload">
+        <div id="photoPreviewWrap">
+          <div class="avatar-placeholder" id="photoPlaceholder">📷</div>
+          <img class="avatar" id="photoPreview" style="display:none;">
+        </div>
+        <input type="file" id="photoInput" accept="image/*">
+        <button type="button" class="btn btn-ghost" id="photoPickBtn">写真を選択</button>
+        <div class="hint">タップして写真を追加（任意）</div>
+      </div>
+
+      <div class="field">
+        <label for="nameInput">名前 *</label>
+        <input type="text" id="nameInput" required placeholder="例）山田 太郎">
+      </div>
+
+      <div class="field">
+        <label for="birthdateInput">生年月日</label>
+        <input type="date" id="birthdateInput">
+      </div>
+
+      <div class="field">
+        <label for="groupInput">グループ</label>
+        <input type="text" id="groupInput" list="groupList" placeholder="例）家族、友人、仕事関係">
+        <datalist id="groupList">
+          <option value="家族">
+          <option value="親戚">
+          <option value="友人">
+          <option value="仕事関係">
+          <option value="その他">
+        </datalist>
+      </div>
+
+      <div class="field">
+        <label for="hometownInput">出身地</label>
+        <div class="autocomplete">
+          <input type="text" id="hometownInput" placeholder="都道府県を入力（かな可）" autocomplete="off">
+          <div class="autocomplete-list" id="hometownList"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="residencePrefInput">住まい</label>
+        <div class="two-col">
+          <div class="autocomplete">
+            <input type="text" id="residencePrefInput" placeholder="都道府県" autocomplete="off">
+            <div class="autocomplete-list" id="residencePrefList"></div>
+          </div>
+          <div class="autocomplete">
+            <input type="text" id="residenceCityInput" placeholder="市区町村" autocomplete="off">
+            <div class="autocomplete-list" id="residenceCityList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="highSchoolInput">出身高校</label>
+        <div class="field-row">
+          <input type="text" id="highSchoolInput" placeholder="例）〇〇高等学校">
+          <button type="button" class="btn btn-ghost icon-btn" id="highSchoolSearchBtn" title="偏差値を調べる">🔍</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="universityInput">大学・専攻</label>
+        <div class="field-row">
+          <input type="text" id="universityInput" placeholder="例）〇〇大学 〇〇学部">
+          <button type="button" class="btn btn-ghost icon-btn" id="universitySearchBtn" title="偏差値を調べる">🔍</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="bestMemoryInput">最高の思い出</label>
+        <textarea id="bestMemoryInput" placeholder="一緒に過ごした忘れられないエピソードなど"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="memoInput">メモ</label>
+        <textarea id="memoInput" placeholder="連絡先など自由に"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="deleteBtn" style="display:none;">削除</button>
+        <div class="right">
+          <button type="button" class="btn btn-ghost" id="cancelBtn">キャンセル</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="overlay" id="detailOverlay">
+  <div class="modal modal-detail">
+    <div class="detail-header">
+      <div id="detailPhotoWrap"></div>
+      <div class="detail-title">
+        <h2 id="detailName"></h2>
+        <div class="group-tag" id="detailGroupTag"></div>
+      </div>
+      <div class="detail-header-actions">
+        <button type="button" class="btn btn-ghost" id="detailEditBtn">編集</button>
+        <button type="button" class="btn btn-ghost" id="detailCloseBtn">閉じる</button>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>現状の情報</h3>
+      <div class="info-row"><span class="info-label">グループ</span><span class="info-value" id="detailGroupText"></span></div>
+      <div class="info-row"><span class="info-label">生年月日</span><span class="info-value" id="detailBirthdate"></span></div>
+      <div class="info-row"><span class="info-label">出身地</span><span class="info-value" id="detailHometown"></span></div>
+      <div class="info-row"><span class="info-label">住まい</span><span class="info-value" id="detailResidence"></span></div>
+      <div class="info-row"><span class="info-label">出身高校</span><span class="info-value" id="detailHighSchool"></span></div>
+      <div class="info-row"><span class="info-label">大学・専攻</span><span class="info-value" id="detailUniversity"></span></div>
+      <div class="info-row"><span class="info-label">最高の思い出</span><span class="info-value" id="detailBestMemory"></span></div>
+      <div class="info-row"><span class="info-label">メモ</span><span class="info-value" id="detailMemo"></span></div>
+
+      <div class="info-block">
+        <span class="info-label">家族構成</span>
+        <textarea class="detail-textarea" id="detailFamilyInput" placeholder="例）配偶者：花子、長男：一郎（10歳）、長女：花（8歳）"></textarea>
+      </div>
+
+      <div class="info-block">
+        <span class="info-label">好きなもの</span>
+        <div class="chips" id="likesChips"></div>
+        <div class="add-row">
+          <input type="text" id="likeInput" placeholder="好きなものを追加（例：コーヒー）">
+          <button type="button" class="btn btn-ghost" id="addLikeBtn">追加</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>写真</h3>
+      <div class="photo-grid" id="photoGrid"></div>
+      <input type="file" id="galleryInput" accept="image/*" multiple>
+      <button type="button" class="btn btn-ghost" id="addPhotoBtn">＋ 写真を追加</button>
+    </div>
+
+    <div class="detail-footer">
+      <button type="button" class="btn btn-danger" id="detailDeleteBtn">この人物を削除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'relationship-manager-people';
+  const MAX_PHOTO_DIM = 400;
+
+  // Google Drive同期の設定
+  // Google Cloud ConsoleでOAuthクライアントIDを作成し、下の値を置き換えてください
+  const GOOGLE_CLIENT_ID = '1087531318038-ost4e62n7u0vslstsqsdo176mqdt0j1q.apps.googleusercontent.com';
+  const DRIVE_FILE_NAME = 'relationship-manager-data.json';
+  const GOOGLE_SYNC_ENABLED = GOOGLE_CLIENT_ID.indexOf('YOUR_CLIENT_ID') === -1;
+  const PREFECTURE_LIST = [{"n":"北海道","k":"ほっかいどう"},{"n":"青森県","k":"あおもりけん"},{"n":"岩手県","k":"いわてけん"},{"n":"宮城県","k":"みやぎけん"},{"n":"秋田県","k":"あきたけん"},{"n":"山形県","k":"やまがたけん"},{"n":"福島県","k":"ふくしまけん"},{"n":"茨城県","k":"いばらきけん"},{"n":"栃木県","k":"とちぎけん"},{"n":"群馬県","k":"ぐんまけん"},{"n":"埼玉県","k":"さいたまけん"},{"n":"千葉県","k":"ちばけん"},{"n":"東京都","k":"とうきょうと"},{"n":"神奈川県","k":"かながわけん"},{"n":"新潟県","k":"にいがたけん"},{"n":"富山県","k":"とやまけん"},{"n":"石川県","k":"いしかわけん"},{"n":"福井県","k":"ふくいけん"},{"n":"山梨県","k":"やまなしけん"},{"n":"長野県","k":"ながのけん"},{"n":"岐阜県","k":"ぎふけん"},{"n":"静岡県","k":"しずおかけん"},{"n":"愛知県","k":"あいちけん"},{"n":"三重県","k":"みえけん"},{"n":"滋賀県","k":"しがけん"},{"n":"京都府","k":"きょうとふ"},{"n":"大阪府","k":"おおさかふ"},{"n":"兵庫県","k":"ひょうごけん"},{"n":"奈良県","k":"ならけん"},{"n":"和歌山県","k":"わかやまけん"},{"n":"鳥取県","k":"とっとりけん"},{"n":"島根県","k":"しまねけん"},{"n":"岡山県","k":"おかやまけん"},{"n":"広島県","k":"ひろしまけん"},{"n":"山口県","k":"やまぐちけん"},{"n":"徳島県","k":"とくしまけん"},{"n":"香川県","k":"かがわけん"},{"n":"愛媛県","k":"えひめけん"},{"n":"高知県","k":"こうちけん"},{"n":"福岡県","k":"ふくおかけん"},{"n":"佐賀県","k":"さがけん"},{"n":"長崎県","k":"ながさきけん"},{"n":"熊本県","k":"くまもとけん"},{"n":"大分県","k":"おおいたけん"},{"n":"宮崎県","k":"みやざきけん"},{"n":"鹿児島県","k":"かごしまけん"},{"n":"沖縄県","k":"おきなわけん"}];
+  const CITY_MAP = {"北海道":[{"n":"札幌市中央区","k":"さっぽろしちゅうおうく"},{"n":"札幌市北区","k":"さっぽろしきたく"},{"n":"札幌市東区","k":"さっぽろしひがしく"},{"n":"札幌市白石区","k":"さっぽろししろいしく"},{"n":"札幌市豊平区","k":"さっぽろしとよひらく"},{"n":"札幌市南区","k":"さっぽろしみなみく"},{"n":"札幌市西区","k":"さっぽろしにしく"},{"n":"札幌市厚別区","k":"さっぽろしあつべつく"},{"n":"札幌市手稲区","k":"さっぽろしていねく"},{"n":"札幌市清田区","k":"さっぽろしきよたく"},{"n":"函館市","k":"はこだてし"},{"n":"小樽市","k":"おたるし"},{"n":"旭川市","k":"あさひかわし"},{"n":"室蘭市","k":"むろらんし"},{"n":"釧路市","k":"くしろし"},{"n":"帯広市","k":"おびひろし"},{"n":"北見市","k":"きたみし"},{"n":"夕張市","k":"ゆうばりし"},{"n":"岩見沢市","k":"いわみざわし"},{"n":"網走市","k":"あばしりし"},{"n":"留萌市","k":"るもいし"},{"n":"苫小牧市","k":"とまこまいし"},{"n":"稚内市","k":"わっかないし"},{"n":"美唄市","k":"びばいし"},{"n":"芦別市","k":"あしべつし"},{"n":"江別市","k":"えべつし"},{"n":"赤平市","k":"あかびらし"},{"n":"紋別市","k":"もんべつし"},{"n":"士別市","k":"しべつし"},{"n":"名寄市","k":"なよろし"},{"n":"三笠市","k":"みかさし"},{"n":"根室市","k":"ねむろし"},{"n":"千歳市","k":"ちとせし"},{"n":"滝川市","k":"たきかわし"},{"n":"砂川市","k":"すながわし"},{"n":"歌志内市","k":"うたしないし"},{"n":"深川市","k":"ふかがわし"},{"n":"富良野市","k":"ふらのし"},{"n":"登別市","k":"のぼりべつし"},{"n":"恵庭市","k":"えにわし"},{"n":"伊達市","k":"だてし"},{"n":"北広島市","k":"きたひろしまし"},{"n":"石狩市","k":"いしかりし"},{"n":"北斗市","k":"ほくとし"},{"n":"当別町","k":"とうべつちょう"},{"n":"新篠津村","k":"しんしのつむら"},{"n":"松前町","k":"まつまえちょう"},{"n":"福島町","k":"ふくしまちょう"},{"n":"知内町","k":"しりうちちょう"},{"n":"木古内町","k":"きこないちょう"},{"n":"七飯町","k":"ななえちょう"},{"n":"鹿部町","k":"しかべちょう"},{"n":"森町","k":"もりまち"},{"n":"八雲町","k":"やくもちょう"},{"n":"長万部町","k":"おしゃまんべちょう"},{"n":"江差町","k":"えさしちょう"},{"n":"上ノ国町","k":"かみのくにちょう"},{"n":"厚沢部町","k":"あっさぶちょう"},{"n":"乙部町","k":"おとべちょう"},{"n":"奥尻町","k":"おくしりちょう"},{"n":"今金町","k":"いまかねちょう"},{"n":"せたな町","k":"せたなちょう"},{"n":"島牧村","k":"しままきむら"},{"n":"寿都町","k":"すっつちょう"},{"n":"黒松内町","k":"くろまつないちょう"},{"n":"蘭越町","k":"らんこしちょう"},{"n":"ニセコ町","k":"にせこちょう"},{"n":"真狩村","k":"まっかりむら"},{"n":"留寿都村","k":"るすつむら"},{"n":"喜茂別町","k":"きもべつちょう"},{"n":"京極町","k":"きょうごくちょう"},{"n":"倶知安町","k":"くっちゃんちょう"},{"n":"共和町","k":"きょうわちょう"},{"n":"岩内町","k":"いわないちょう"},{"n":"泊村","k":"とまりむら"},{"n":"神恵内村","k":"かもえないむら"},{"n":"積丹町","k":"しゃこたんちょう"},{"n":"古平町","k":"ふるびらちょう"},{"n":"仁木町","k":"にきちょう"},{"n":"余市町","k":"よいちちょう"},{"n":"赤井川村","k":"あかいがわむら"},{"n":"南幌町","k":"なんぽろちょう"},{"n":"奈井江町","k":"ないえちょう"},{"n":"上砂川町","k":"かみすながわちょう"},{"n":"由仁町","k":"ゆにちょう"},{"n":"長沼町","k":"ながぬまちょう"},{"n":"栗山町","k":"くりやまちょう"},{"n":"月形町","k":"つきがたちょう"},{"n":"浦臼町","k":"うらうすちょう"},{"n":"新十津川町","k":"しんとつかわちょう"},{"n":"妹背牛町","k":"もせうしちょう"},{"n":"秩父別町","k":"ちっぷべつちょう"},{"n":"雨竜町","k":"うりゅうちょう"},{"n":"北竜町","k":"ほくりゅうちょう"},{"n":"沼田町","k":"ぬまたちょう"},{"n":"鷹栖町","k":"たかすちょう"},{"n":"東神楽町","k":"ひがしかぐらちょう"},{"n":"当麻町","k":"とうまちょう"},{"n":"比布町","k":"ぴっぷちょう"},{"n":"愛別町","k":"あいべつちょう"},{"n":"上川町","k":"かみかわちょう"},{"n":"東川町","k":"ひがしかわちょう"},{"n":"美瑛町","k":"びえいちょう"},{"n":"上富良野町","k":"かみふらのちょう"},{"n":"中富良野町","k":"なかふらのちょう"},{"n":"南富良野町","k":"みなみふらのちょう"},{"n":"占冠村","k":"しむかっぷむら"},{"n":"和寒町","k":"わっさむちょう"},{"n":"剣淵町","k":"けんぶちちょう"},{"n":"下川町","k":"しもかわちょう"},{"n":"美深町","k":"びふかちょう"},{"n":"音威子府村","k":"おといねっぷむら"},{"n":"中川町","k":"なかがわちょう"},{"n":"幌加内町","k":"ほろかないちょう"},{"n":"増毛町","k":"ましけちょう"},{"n":"小平町","k":"おびらちょう"},{"n":"苫前町","k":"とままえちょう"},{"n":"羽幌町","k":"はぼろちょう"},{"n":"初山別村","k":"しょさんべつむら"},{"n":"遠別町","k":"えんべつちょう"},{"n":"天塩町","k":"てしおちょう"},{"n":"猿払村","k":"さるふつむら"},{"n":"浜頓別町","k":"はまとんべつちょう"},{"n":"中頓別町","k":"なかとんべつちょう"},{"n":"枝幸町","k":"えさしちょう"},{"n":"豊富町","k":"とよとみちょう"},{"n":"礼文町","k":"れぶんちょう"},{"n":"利尻町","k":"りしりちょう"},{"n":"利尻富士町","k":"りしりふじちょう"},{"n":"幌延町","k":"ほろのべちょう"},{"n":"美幌町","k":"びほろちょう"},{"n":"津別町","k":"つべつちょう"},{"n":"斜里町","k":"しゃりちょう"},{"n":"清里町","k":"きよさとちょう"},{"n":"小清水町","k":"こしみずちょう"},{"n":"訓子府町","k":"くんねっぷちょう"},{"n":"置戸町","k":"おけとちょう"},{"n":"佐呂間町","k":"さろまちょう"},{"n":"遠軽町","k":"えんがるちょう"},{"n":"湧別町","k":"ゆうべつちょう"},{"n":"滝上町","k":"たきのうえちょう"},{"n":"興部町","k":"おこっぺちょう"},{"n":"西興部村","k":"にしおこっぺむら"},{"n":"雄武町","k":"おうむちょう"},{"n":"大空町","k":"おおぞらちょう"},{"n":"豊浦町","k":"とようらちょう"},{"n":"壮瞥町","k":"そうべつちょう"},{"n":"白老町","k":"しらおいちょう"},{"n":"厚真町","k":"あつまちょう"},{"n":"洞爺湖町","k":"とうやこちょう"},{"n":"安平町","k":"あびらちょう"},{"n":"むかわ町","k":"むかわちょう"},{"n":"日高町","k":"ひだかちょう"},{"n":"平取町","k":"びらとりちょう"},{"n":"新冠町","k":"にいかっぷちょう"},{"n":"浦河町","k":"うらかわちょう"},{"n":"様似町","k":"さまにちょう"},{"n":"えりも町","k":"えりもちょう"},{"n":"新ひだか町","k":"しんひだかちょう"},{"n":"音更町","k":"おとふけちょう"},{"n":"士幌町","k":"しほろちょう"},{"n":"上士幌町","k":"かみしほろちょう"},{"n":"鹿追町","k":"しかおいちょう"},{"n":"新得町","k":"しんとくちょう"},{"n":"清水町","k":"しみずちょう"},{"n":"芽室町","k":"めむろちょう"},{"n":"中札内村","k":"なかさつないむら"},{"n":"更別村","k":"さらべつむら"},{"n":"大樹町","k":"たいきちょう"},{"n":"広尾町","k":"ひろおちょう"},{"n":"幕別町","k":"まくべつちょう"},{"n":"池田町","k":"いけだちょう"},{"n":"豊頃町","k":"とよころちょう"},{"n":"本別町","k":"ほんべつちょう"},{"n":"足寄町","k":"あしょろちょう"},{"n":"陸別町","k":"りくべつちょう"},{"n":"浦幌町","k":"うらほろちょう"},{"n":"釧路町","k":"くしろちょう"},{"n":"厚岸町","k":"あっけしちょう"},{"n":"浜中町","k":"はまなかちょう"},{"n":"標茶町","k":"しべちゃちょう"},{"n":"弟子屈町","k":"てしかがちょう"},{"n":"鶴居村","k":"つるいむら"},{"n":"白糠町","k":"しらぬかちょう"},{"n":"別海町","k":"べつかいちょう"},{"n":"中標津町","k":"なかしべつちょう"},{"n":"標津町","k":"しべつちょう"},{"n":"羅臼町","k":"らうすちょう"},{"n":"色丹村","k":"しこたんむら"},{"n":"泊村","k":"とまりむら"},{"n":"留夜別村","k":"るやべつむら"},{"n":"留別村","k":"るべつむら"},{"n":"紗那村","k":"しゃなむら"},{"n":"蘂取村","k":"しべとろむら"}],"青森県":[{"n":"青森市","k":"あおもりし"},{"n":"弘前市","k":"ひろさきし"},{"n":"八戸市","k":"はちのへし"},{"n":"黒石市","k":"くろいしし"},{"n":"五所川原市","k":"ごしょがわらし"},{"n":"十和田市","k":"とわだし"},{"n":"三沢市","k":"みさわし"},{"n":"むつ市","k":"むつし"},{"n":"つがる市","k":"つがるし"},{"n":"平川市","k":"ひらかわし"},{"n":"平内町","k":"ひらないまち"},{"n":"今別町","k":"いまべつまち"},{"n":"蓬田村","k":"よもぎたむら"},{"n":"外ヶ浜町","k":"そとがはままち"},{"n":"鰺ヶ沢町","k":"あじがさわまち"},{"n":"深浦町","k":"ふかうらまち"},{"n":"西目屋村","k":"にしめやむら"},{"n":"藤崎町","k":"ふじさきまち"},{"n":"大鰐町","k":"おおわにまち"},{"n":"田舎館村","k":"いなかだてむら"},{"n":"板柳町","k":"いたやなぎまち"},{"n":"鶴田町","k":"つるたまち"},{"n":"中泊町","k":"なかどまりまち"},{"n":"野辺地町","k":"のへじまち"},{"n":"七戸町","k":"しちのへまち"},{"n":"六戸町","k":"ろくのへまち"},{"n":"横浜町","k":"よこはままち"},{"n":"東北町","k":"とうほくまち"},{"n":"六ヶ所村","k":"ろっかしょむら"},{"n":"おいらせ町","k":"おいらせちょう"},{"n":"大間町","k":"おおままち"},{"n":"東通村","k":"ひがしどおりむら"},{"n":"風間浦村","k":"かざまうらむら"},{"n":"佐井村","k":"さいむら"},{"n":"三戸町","k":"さんのへまち"},{"n":"五戸町","k":"ごのへまち"},{"n":"田子町","k":"たっこまち"},{"n":"南部町","k":"なんぶちょう"},{"n":"階上町","k":"はしかみちょう"},{"n":"新郷村","k":"しんごうむら"}],"岩手県":[{"n":"盛岡市","k":"もりおかし"},{"n":"宮古市","k":"みやこし"},{"n":"大船渡市","k":"おおふなとし"},{"n":"花巻市","k":"はなまきし"},{"n":"北上市","k":"きたかみし"},{"n":"久慈市","k":"くじし"},{"n":"遠野市","k":"とおのし"},{"n":"一関市","k":"いちのせきし"},{"n":"陸前高田市","k":"りくぜんたかたし"},{"n":"釜石市","k":"かまいしし"},{"n":"二戸市","k":"にのへし"},{"n":"八幡平市","k":"はちまんたいし"},{"n":"奥州市","k":"おうしゅうし"},{"n":"滝沢市","k":"たきざわし"},{"n":"雫石町","k":"しずくいしちょう"},{"n":"葛巻町","k":"くずまきまち"},{"n":"岩手町","k":"いわてまち"},{"n":"紫波町","k":"しわちょう"},{"n":"矢巾町","k":"やはばちょう"},{"n":"西和賀町","k":"にしわがまち"},{"n":"金ケ崎町","k":"かねがさきちょう"},{"n":"平泉町","k":"ひらいずみちょう"},{"n":"住田町","k":"すみたちょう"},{"n":"大槌町","k":"おおつちちょう"},{"n":"山田町","k":"やまだまち"},{"n":"岩泉町","k":"いわいずみちょう"},{"n":"田野畑村","k":"たのはたむら"},{"n":"普代村","k":"ふだいむら"},{"n":"軽米町","k":"かるまいまち"},{"n":"野田村","k":"のだむら"},{"n":"九戸村","k":"くのへむら"},{"n":"洋野町","k":"ひろのちょう"},{"n":"一戸町","k":"いちのへまち"}],"宮城県":[{"n":"仙台市青葉区","k":"せんだいしあおばく"},{"n":"仙台市宮城野区","k":"せんだいしみやぎのく"},{"n":"仙台市若林区","k":"せんだいしわかばやしく"},{"n":"仙台市太白区","k":"せんだいしたいはくく"},{"n":"仙台市泉区","k":"せんだいしいずみく"},{"n":"石巻市","k":"いしのまきし"},{"n":"塩竈市","k":"しおがまし"},{"n":"気仙沼市","k":"けせんぬまし"},{"n":"白石市","k":"しろいしし"},{"n":"名取市","k":"なとりし"},{"n":"角田市","k":"かくだし"},{"n":"多賀城市","k":"たがじょうし"},{"n":"岩沼市","k":"いわぬまし"},{"n":"登米市","k":"とめし"},{"n":"栗原市","k":"くりはらし"},{"n":"東松島市","k":"ひがしまつしまし"},{"n":"大崎市","k":"おおさきし"},{"n":"富谷市","k":"とみやし"},{"n":"蔵王町","k":"ざおうまち"},{"n":"七ヶ宿町","k":"しちかしゅくまち"},{"n":"大河原町","k":"おおがわらまち"},{"n":"村田町","k":"むらたまち"},{"n":"柴田町","k":"しばたまち"},{"n":"川崎町","k":"かわさきまち"},{"n":"丸森町","k":"まるもりまち"},{"n":"亘理町","k":"わたりちょう"},{"n":"山元町","k":"やまもとちょう"},{"n":"松島町","k":"まつしままち"},{"n":"七ヶ浜町","k":"しちがはままち"},{"n":"利府町","k":"りふちょう"},{"n":"大和町","k":"たいわちょう"},{"n":"大郷町","k":"おおさとちょう"},{"n":"大衡村","k":"おおひらむら"},{"n":"色麻町","k":"しかまちょう"},{"n":"加美町","k":"かみまち"},{"n":"涌谷町","k":"わくやちょう"},{"n":"美里町","k":"みさとまち"},{"n":"女川町","k":"おながわちょう"},{"n":"南三陸町","k":"みなみさんりくちょう"}],"秋田県":[{"n":"秋田市","k":"あきたし"},{"n":"能代市","k":"のしろし"},{"n":"横手市","k":"よこてし"},{"n":"大館市","k":"おおだてし"},{"n":"男鹿市","k":"おがし"},{"n":"湯沢市","k":"ゆざわし"},{"n":"鹿角市","k":"かづのし"},{"n":"由利本荘市","k":"ゆりほんじょうし"},{"n":"潟上市","k":"かたがみし"},{"n":"大仙市","k":"だいせんし"},{"n":"北秋田市","k":"きたあきたし"},{"n":"にかほ市","k":"にかほし"},{"n":"仙北市","k":"せんぼくし"},{"n":"小坂町","k":"こさかまち"},{"n":"上小阿仁村","k":"かみこあにむら"},{"n":"藤里町","k":"ふじさとまち"},{"n":"三種町","k":"みたねちょう"},{"n":"八峰町","k":"はっぽうちょう"},{"n":"五城目町","k":"ごじょうめまち"},{"n":"八郎潟町","k":"はちろうがたまち"},{"n":"井川町","k":"いかわまち"},{"n":"大潟村","k":"おおがたむら"},{"n":"美郷町","k":"みさとちょう"},{"n":"羽後町","k":"うごまち"},{"n":"東成瀬村","k":"ひがしなるせむら"}],"山形県":[{"n":"山形市","k":"やまがたし"},{"n":"米沢市","k":"よねざわし"},{"n":"鶴岡市","k":"つるおかし"},{"n":"酒田市","k":"さかたし"},{"n":"新庄市","k":"しんじょうし"},{"n":"寒河江市","k":"さがえし"},{"n":"上山市","k":"かみのやまし"},{"n":"村山市","k":"むらやまし"},{"n":"長井市","k":"ながいし"},{"n":"天童市","k":"てんどうし"},{"n":"東根市","k":"ひがしねし"},{"n":"尾花沢市","k":"おばなざわし"},{"n":"南陽市","k":"なんようし"},{"n":"山辺町","k":"やまのべまち"},{"n":"中山町","k":"なかやままち"},{"n":"河北町","k":"かほくちょう"},{"n":"西川町","k":"にしかわまち"},{"n":"朝日町","k":"あさひまち"},{"n":"大江町","k":"おおえまち"},{"n":"大石田町","k":"おおいしだまち"},{"n":"金山町","k":"かねやままち"},{"n":"最上町","k":"もがみまち"},{"n":"舟形町","k":"ふながたまち"},{"n":"真室川町","k":"まむろがわまち"},{"n":"大蔵村","k":"おおくらむら"},{"n":"鮭川村","k":"さけがわむら"},{"n":"戸沢村","k":"とざわむら"},{"n":"高畠町","k":"たかはたまち"},{"n":"川西町","k":"かわにしまち"},{"n":"小国町","k":"おぐにまち"},{"n":"白鷹町","k":"しらたかまち"},{"n":"飯豊町","k":"いいでまち"},{"n":"三川町","k":"みかわまち"},{"n":"庄内町","k":"しょうないまち"},{"n":"遊佐町","k":"ゆざまち"}],"福島県":[{"n":"福島市","k":"ふくしまし"},{"n":"会津若松市","k":"あいづわかまつし"},{"n":"郡山市","k":"こおりやまし"},{"n":"いわき市","k":"いわきし"},{"n":"白河市","k":"しらかわし"},{"n":"須賀川市","k":"すかがわし"},{"n":"喜多方市","k":"きたかたし"},{"n":"相馬市","k":"そうまし"},{"n":"二本松市","k":"にほんまつし"},{"n":"田村市","k":"たむらし"},{"n":"南相馬市","k":"みなみそうまし"},{"n":"伊達市","k":"だてし"},{"n":"本宮市","k":"もとみやし"},{"n":"桑折町","k":"こおりまち"},{"n":"国見町","k":"くにみまち"},{"n":"川俣町","k":"かわまたまち"},{"n":"大玉村","k":"おおたまむら"},{"n":"鏡石町","k":"かがみいしまち"},{"n":"天栄村","k":"てんえいむら"},{"n":"下郷町","k":"しもごうまち"},{"n":"檜枝岐村","k":"ひのえまたむら"},{"n":"只見町","k":"ただみまち"},{"n":"南会津町","k":"みなみあいづまち"},{"n":"北塩原村","k":"きたしおばらむら"},{"n":"西会津町","k":"にしあいづまち"},{"n":"磐梯町","k":"ばんだいまち"},{"n":"猪苗代町","k":"いなわしろまち"},{"n":"会津坂下町","k":"あいづばんげまち"},{"n":"湯川村","k":"ゆがわむら"},{"n":"柳津町","k":"やないづまち"},{"n":"三島町","k":"みしままち"},{"n":"金山町","k":"かねやままち"},{"n":"昭和村","k":"しょうわむら"},{"n":"会津美里町","k":"あいづみさとまち"},{"n":"西郷村","k":"にしごうむら"},{"n":"泉崎村","k":"いずみざきむら"},{"n":"中島村","k":"なかじまむら"},{"n":"矢吹町","k":"やぶきまち"},{"n":"棚倉町","k":"たなぐらまち"},{"n":"矢祭町","k":"やまつりまち"},{"n":"塙町","k":"はなわまち"},{"n":"鮫川村","k":"さめがわむら"},{"n":"石川町","k":"いしかわまち"},{"n":"玉川村","k":"たまかわむら"},{"n":"平田村","k":"ひらたむら"},{"n":"浅川町","k":"あさかわまち"},{"n":"古殿町","k":"ふるどのまち"},{"n":"三春町","k":"みはるまち"},{"n":"小野町","k":"おのまち"},{"n":"広野町","k":"ひろのまち"},{"n":"楢葉町","k":"ならはまち"},{"n":"富岡町","k":"とみおかまち"},{"n":"川内村","k":"かわうちむら"},{"n":"大熊町","k":"おおくままち"},{"n":"双葉町","k":"ふたばまち"},{"n":"浪江町","k":"なみえまち"},{"n":"葛尾村","k":"かつらおむら"},{"n":"新地町","k":"しんちまち"},{"n":"飯舘村","k":"いいたてむら"}],"茨城県":[{"n":"水戸市","k":"みとし"},{"n":"日立市","k":"ひたちし"},{"n":"土浦市","k":"つちうらし"},{"n":"古河市","k":"こがし"},{"n":"石岡市","k":"いしおかし"},{"n":"結城市","k":"ゆうきし"},{"n":"龍ケ崎市","k":"りゅうがさきし"},{"n":"下妻市","k":"しもつまし"},{"n":"常総市","k":"じょうそうし"},{"n":"常陸太田市","k":"ひたちおおたし"},{"n":"高萩市","k":"たかはぎし"},{"n":"北茨城市","k":"きたいばらきし"},{"n":"笠間市","k":"かさまし"},{"n":"取手市","k":"とりでし"},{"n":"牛久市","k":"うしくし"},{"n":"つくば市","k":"つくばし"},{"n":"ひたちなか市","k":"ひたちなかし"},{"n":"鹿嶋市","k":"かしまし"},{"n":"潮来市","k":"いたこし"},{"n":"守谷市","k":"もりやし"},{"n":"常陸大宮市","k":"ひたちおおみやし"},{"n":"那珂市","k":"なかし"},{"n":"筑西市","k":"ちくせいし"},{"n":"坂東市","k":"ばんどうし"},{"n":"稲敷市","k":"いなしきし"},{"n":"かすみがうら市","k":"かすみがうらし"},{"n":"桜川市","k":"さくらがわし"},{"n":"神栖市","k":"かみすし"},{"n":"行方市","k":"なめがたし"},{"n":"鉾田市","k":"ほこたし"},{"n":"つくばみらい市","k":"つくばみらいし"},{"n":"小美玉市","k":"おみたまし"},{"n":"茨城町","k":"いばらきまち"},{"n":"大洗町","k":"おおあらいまち"},{"n":"城里町","k":"しろさとまち"},{"n":"東海村","k":"とうかいむら"},{"n":"大子町","k":"だいごまち"},{"n":"美浦村","k":"みほむら"},{"n":"阿見町","k":"あみまち"},{"n":"河内町","k":"かわちまち"},{"n":"八千代町","k":"やちよまち"},{"n":"五霞町","k":"ごかまち"},{"n":"境町","k":"さかいまち"},{"n":"利根町","k":"とねまち"}],"栃木県":[{"n":"宇都宮市","k":"うつのみやし"},{"n":"足利市","k":"あしかがし"},{"n":"栃木市","k":"とちぎし"},{"n":"佐野市","k":"さのし"},{"n":"鹿沼市","k":"かぬまし"},{"n":"日光市","k":"にっこうし"},{"n":"小山市","k":"おやまし"},{"n":"真岡市","k":"もおかし"},{"n":"大田原市","k":"おおたわらし"},{"n":"矢板市","k":"やいたし"},{"n":"那須塩原市","k":"なすしおばらし"},{"n":"さくら市","k":"さくらし"},{"n":"那須烏山市","k":"なすからすやまし"},{"n":"下野市","k":"しもつけし"},{"n":"上三川町","k":"かみのかわまち"},{"n":"益子町","k":"ましこまち"},{"n":"茂木町","k":"もてぎまち"},{"n":"市貝町","k":"いちかいまち"},{"n":"芳賀町","k":"はがまち"},{"n":"壬生町","k":"みぶまち"},{"n":"野木町","k":"のぎまち"},{"n":"塩谷町","k":"しおやまち"},{"n":"高根沢町","k":"たかねざわまち"},{"n":"那須町","k":"なすまち"},{"n":"那珂川町","k":"なかがわまち"}],"群馬県":[{"n":"前橋市","k":"まえばしし"},{"n":"高崎市","k":"たかさきし"},{"n":"桐生市","k":"きりゅうし"},{"n":"伊勢崎市","k":"いせさきし"},{"n":"太田市","k":"おおたし"},{"n":"沼田市","k":"ぬまたし"},{"n":"館林市","k":"たてばやしし"},{"n":"渋川市","k":"しぶかわし"},{"n":"藤岡市","k":"ふじおかし"},{"n":"富岡市","k":"とみおかし"},{"n":"安中市","k":"あんなかし"},{"n":"みどり市","k":"みどりし"},{"n":"榛東村","k":"しんとうむら"},{"n":"吉岡町","k":"よしおかまち"},{"n":"上野村","k":"うえのむら"},{"n":"神流町","k":"かんなまち"},{"n":"下仁田町","k":"しもにたまち"},{"n":"南牧村","k":"なんもくむら"},{"n":"甘楽町","k":"かんらまち"},{"n":"中之条町","k":"なかのじょうまち"},{"n":"長野原町","k":"ながのはらまち"},{"n":"嬬恋村","k":"つまごいむら"},{"n":"草津町","k":"くさつまち"},{"n":"高山村","k":"たかやまむら"},{"n":"東吾妻町","k":"ひがしあがつままち"},{"n":"片品村","k":"かたしなむら"},{"n":"川場村","k":"かわばむら"},{"n":"昭和村","k":"しょうわむら"},{"n":"みなかみ町","k":"みなかみまち"},{"n":"玉村町","k":"たまむらまち"},{"n":"板倉町","k":"いたくらまち"},{"n":"明和町","k":"めいわまち"},{"n":"千代田町","k":"ちよだまち"},{"n":"大泉町","k":"おおいずみまち"},{"n":"邑楽町","k":"おうらまち"}],"埼玉県":[{"n":"さいたま市西区","k":"さいたましにしく"},{"n":"さいたま市北区","k":"さいたましきたく"},{"n":"さいたま市大宮区","k":"さいたましおおみやく"},{"n":"さいたま市見沼区","k":"さいたましみぬまく"},{"n":"さいたま市中央区","k":"さいたましちゅうおうく"},{"n":"さいたま市桜区","k":"さいたましさくらく"},{"n":"さいたま市浦和区","k":"さいたましうらわく"},{"n":"さいたま市南区","k":"さいたましみなみく"},{"n":"さいたま市緑区","k":"さいたましみどりく"},{"n":"さいたま市岩槻区","k":"さいたましいわつきく"},{"n":"川越市","k":"かわごえし"},{"n":"熊谷市","k":"くまがやし"},{"n":"川口市","k":"かわぐちし"},{"n":"行田市","k":"ぎょうだし"},{"n":"秩父市","k":"ちちぶし"},{"n":"所沢市","k":"ところざわし"},{"n":"飯能市","k":"はんのうし"},{"n":"加須市","k":"かぞし"},{"n":"本庄市","k":"ほんじょうし"},{"n":"東松山市","k":"ひがしまつやまし"},{"n":"春日部市","k":"かすかべし"},{"n":"狭山市","k":"さやまし"},{"n":"羽生市","k":"はにゅうし"},{"n":"鴻巣市","k":"こうのすし"},{"n":"深谷市","k":"ふかやし"},{"n":"上尾市","k":"あげおし"},{"n":"草加市","k":"そうかし"},{"n":"越谷市","k":"こしがやし"},{"n":"蕨市","k":"わらびし"},{"n":"戸田市","k":"とだし"},{"n":"入間市","k":"いるまし"},{"n":"朝霞市","k":"あさかし"},{"n":"志木市","k":"しきし"},{"n":"和光市","k":"わこうし"},{"n":"新座市","k":"にいざし"},{"n":"桶川市","k":"おけがわし"},{"n":"久喜市","k":"くきし"},{"n":"北本市","k":"きたもとし"},{"n":"八潮市","k":"やしおし"},{"n":"富士見市","k":"ふじみし"},{"n":"三郷市","k":"みさとし"},{"n":"蓮田市","k":"はすだし"},{"n":"坂戸市","k":"さかどし"},{"n":"幸手市","k":"さってし"},{"n":"鶴ヶ島市","k":"つるがしまし"},{"n":"日高市","k":"ひだかし"},{"n":"吉川市","k":"よしかわし"},{"n":"ふじみ野市","k":"ふじみのし"},{"n":"白岡市","k":"しらおかし"},{"n":"伊奈町","k":"いなまち"},{"n":"三芳町","k":"みよしまち"},{"n":"毛呂山町","k":"もろやままち"},{"n":"越生町","k":"おごせまち"},{"n":"滑川町","k":"なめがわまち"},{"n":"嵐山町","k":"らんざんまち"},{"n":"小川町","k":"おがわまち"},{"n":"川島町","k":"かわじままち"},{"n":"吉見町","k":"よしみまち"},{"n":"鳩山町","k":"はとやままち"},{"n":"ときがわ町","k":"ときがわまち"},{"n":"横瀬町","k":"よこぜまち"},{"n":"皆野町","k":"みなのまち"},{"n":"長瀞町","k":"ながとろまち"},{"n":"小鹿野町","k":"おがのまち"},{"n":"東秩父村","k":"ひがしちちぶむら"},{"n":"美里町","k":"みさとまち"},{"n":"神川町","k":"かみかわまち"},{"n":"上里町","k":"かみさとまち"},{"n":"寄居町","k":"よりいまち"},{"n":"宮代町","k":"みやしろまち"},{"n":"杉戸町","k":"すぎとまち"},{"n":"松伏町","k":"まつぶしまち"}],"千葉県":[{"n":"千葉市中央区","k":"ちばしちゅうおうく"},{"n":"千葉市花見川区","k":"ちばしはなみがわく"},{"n":"千葉市稲毛区","k":"ちばしいなげく"},{"n":"千葉市若葉区","k":"ちばしわかばく"},{"n":"千葉市緑区","k":"ちばしみどりく"},{"n":"千葉市美浜区","k":"ちばしみはまく"},{"n":"銚子市","k":"ちょうしし"},{"n":"市川市","k":"いちかわし"},{"n":"船橋市","k":"ふなばしし"},{"n":"館山市","k":"たてやまし"},{"n":"木更津市","k":"きさらづし"},{"n":"松戸市","k":"まつどし"},{"n":"野田市","k":"のだし"},{"n":"茂原市","k":"もばらし"},{"n":"成田市","k":"なりたし"},{"n":"佐倉市","k":"さくらし"},{"n":"東金市","k":"とうがねし"},{"n":"旭市","k":"あさひし"},{"n":"習志野市","k":"ならしのし"},{"n":"柏市","k":"かしわし"},{"n":"勝浦市","k":"かつうらし"},{"n":"市原市","k":"いちはらし"},{"n":"流山市","k":"ながれやまし"},{"n":"八千代市","k":"やちよし"},{"n":"我孫子市","k":"あびこし"},{"n":"鴨川市","k":"かもがわし"},{"n":"鎌ケ谷市","k":"かまがやし"},{"n":"君津市","k":"きみつし"},{"n":"富津市","k":"ふっつし"},{"n":"浦安市","k":"うらやすし"},{"n":"四街道市","k":"よつかいどうし"},{"n":"袖ケ浦市","k":"そでがうらし"},{"n":"八街市","k":"やちまたし"},{"n":"印西市","k":"いんざいし"},{"n":"白井市","k":"しろいし"},{"n":"富里市","k":"とみさとし"},{"n":"南房総市","k":"みなみぼうそうし"},{"n":"匝瑳市","k":"そうさし"},{"n":"香取市","k":"かとりし"},{"n":"山武市","k":"さんむし"},{"n":"いすみ市","k":"いすみし"},{"n":"大網白里市","k":"おおあみしらさとし"},{"n":"酒々井町","k":"しすいまち"},{"n":"栄町","k":"さかえまち"},{"n":"神崎町","k":"こうざきまち"},{"n":"多古町","k":"たこまち"},{"n":"東庄町","k":"とうのしょうまち"},{"n":"九十九里町","k":"くじゅうくりまち"},{"n":"芝山町","k":"しばやままち"},{"n":"横芝光町","k":"よこしばひかりまち"},{"n":"一宮町","k":"いちのみやまち"},{"n":"睦沢町","k":"むつざわまち"},{"n":"長生村","k":"ちょうせいむら"},{"n":"白子町","k":"しらこまち"},{"n":"長柄町","k":"ながらまち"},{"n":"長南町","k":"ちょうなんまち"},{"n":"大多喜町","k":"おおたきまち"},{"n":"御宿町","k":"おんじゅくまち"},{"n":"鋸南町","k":"きょなんまち"}],"東京都":[{"n":"千代田区","k":"ちよだく"},{"n":"中央区","k":"ちゅうおうく"},{"n":"港区","k":"みなとく"},{"n":"新宿区","k":"しんじゅくく"},{"n":"文京区","k":"ぶんきょうく"},{"n":"台東区","k":"たいとうく"},{"n":"墨田区","k":"すみだく"},{"n":"江東区","k":"こうとうく"},{"n":"品川区","k":"しながわく"},{"n":"目黒区","k":"めぐろく"},{"n":"大田区","k":"おおたく"},{"n":"世田谷区","k":"せたがやく"},{"n":"渋谷区","k":"しぶやく"},{"n":"中野区","k":"なかのく"},{"n":"杉並区","k":"すぎなみく"},{"n":"豊島区","k":"としまく"},{"n":"北区","k":"きたく"},{"n":"荒川区","k":"あらかわく"},{"n":"板橋区","k":"いたばしく"},{"n":"練馬区","k":"ねりまく"},{"n":"足立区","k":"あだちく"},{"n":"葛飾区","k":"かつしかく"},{"n":"江戸川区","k":"えどがわく"},{"n":"八王子市","k":"はちおうじし"},{"n":"立川市","k":"たちかわし"},{"n":"武蔵野市","k":"むさしのし"},{"n":"三鷹市","k":"みたかし"},{"n":"青梅市","k":"おうめし"},{"n":"府中市","k":"ふちゅうし"},{"n":"昭島市","k":"あきしまし"},{"n":"調布市","k":"ちょうふし"},{"n":"町田市","k":"まちだし"},{"n":"小金井市","k":"こがねいし"},{"n":"小平市","k":"こだいらし"},{"n":"日野市","k":"ひのし"},{"n":"東村山市","k":"ひがしむらやまし"},{"n":"国分寺市","k":"こくぶんじし"},{"n":"国立市","k":"くにたちし"},{"n":"福生市","k":"ふっさし"},{"n":"狛江市","k":"こまえし"},{"n":"東大和市","k":"ひがしやまとし"},{"n":"清瀬市","k":"きよせし"},{"n":"東久留米市","k":"ひがしくるめし"},{"n":"武蔵村山市","k":"むさしむらやまし"},{"n":"多摩市","k":"たまし"},{"n":"稲城市","k":"いなぎし"},{"n":"羽村市","k":"はむらし"},{"n":"あきる野市","k":"あきるのし"},{"n":"西東京市","k":"にしとうきょうし"},{"n":"瑞穂町","k":"みずほまち"},{"n":"日の出町","k":"ひのでまち"},{"n":"檜原村","k":"ひのはらむら"},{"n":"奥多摩町","k":"おくたままち"},{"n":"大島町","k":"おおしままち"},{"n":"利島村","k":"としまむら"},{"n":"新島村","k":"にいじまむら"},{"n":"神津島村","k":"こうづしまむら"},{"n":"三宅村","k":"みやけむら"},{"n":"御蔵島村","k":"みくらじまむら"},{"n":"八丈町","k":"はちじょうまち"},{"n":"青ヶ島村","k":"あおがしまむら"},{"n":"小笠原村","k":"おがさわらむら"}],"神奈川県":[{"n":"横浜市鶴見区","k":"よこはましつるみく"},{"n":"横浜市神奈川区","k":"よこはましかながわく"},{"n":"横浜市西区","k":"よこはましにしく"},{"n":"横浜市中区","k":"よこはましなかく"},{"n":"横浜市南区","k":"よこはましみなみく"},{"n":"横浜市保土ケ谷区","k":"よこはましほどがやく"},{"n":"横浜市磯子区","k":"よこはましいそごく"},{"n":"横浜市金沢区","k":"よこはましかなざわく"},{"n":"横浜市港北区","k":"よこはましこうほくく"},{"n":"横浜市戸塚区","k":"よこはましとつかく"},{"n":"横浜市港南区","k":"よこはましこうなんく"},{"n":"横浜市旭区","k":"よこはましあさひく"},{"n":"横浜市緑区","k":"よこはましみどりく"},{"n":"横浜市瀬谷区","k":"よこはましせやく"},{"n":"横浜市栄区","k":"よこはましさかえく"},{"n":"横浜市泉区","k":"よこはましいずみく"},{"n":"横浜市青葉区","k":"よこはましあおばく"},{"n":"横浜市都筑区","k":"よこはましつづきく"},{"n":"川崎市川崎区","k":"かわさきしかわさきく"},{"n":"川崎市幸区","k":"かわさきしさいわいく"},{"n":"川崎市中原区","k":"かわさきしなかはらく"},{"n":"川崎市高津区","k":"かわさきしたかつく"},{"n":"川崎市多摩区","k":"かわさきしたまく"},{"n":"川崎市宮前区","k":"かわさきしみやまえく"},{"n":"川崎市麻生区","k":"かわさきしあさおく"},{"n":"相模原市緑区","k":"さがみはらしみどりく"},{"n":"相模原市中央区","k":"さがみはらしちゅうおうく"},{"n":"相模原市南区","k":"さがみはらしみなみく"},{"n":"横須賀市","k":"よこすかし"},{"n":"平塚市","k":"ひらつかし"},{"n":"鎌倉市","k":"かまくらし"},{"n":"藤沢市","k":"ふじさわし"},{"n":"小田原市","k":"おだわらし"},{"n":"茅ヶ崎市","k":"ちがさきし"},{"n":"逗子市","k":"ずしし"},{"n":"三浦市","k":"みうらし"},{"n":"秦野市","k":"はだのし"},{"n":"厚木市","k":"あつぎし"},{"n":"大和市","k":"やまとし"},{"n":"伊勢原市","k":"いせはらし"},{"n":"海老名市","k":"えびなし"},{"n":"座間市","k":"ざまし"},{"n":"南足柄市","k":"みなみあしがらし"},{"n":"綾瀬市","k":"あやせし"},{"n":"葉山町","k":"はやままち"},{"n":"寒川町","k":"さむかわまち"},{"n":"大磯町","k":"おおいそまち"},{"n":"二宮町","k":"にのみやまち"},{"n":"中井町","k":"なかいまち"},{"n":"大井町","k":"おおいまち"},{"n":"松田町","k":"まつだまち"},{"n":"山北町","k":"やまきたまち"},{"n":"開成町","k":"かいせいまち"},{"n":"箱根町","k":"はこねまち"},{"n":"真鶴町","k":"まなつるまち"},{"n":"湯河原町","k":"ゆがわらまち"},{"n":"愛川町","k":"あいかわまち"},{"n":"清川村","k":"きよかわむら"}],"新潟県":[{"n":"新潟市北区","k":"にいがたしきたく"},{"n":"新潟市東区","k":"にいがたしひがしく"},{"n":"新潟市中央区","k":"にいがたしちゅうおうく"},{"n":"新潟市江南区","k":"にいがたしこうなんく"},{"n":"新潟市秋葉区","k":"にいがたしあきはく"},{"n":"新潟市南区","k":"にいがたしみなみく"},{"n":"新潟市西区","k":"にいがたしにしく"},{"n":"新潟市西蒲区","k":"にいがたしにしかんく"},{"n":"長岡市","k":"ながおかし"},{"n":"三条市","k":"さんじょうし"},{"n":"柏崎市","k":"かしわざきし"},{"n":"新発田市","k":"しばたし"},{"n":"小千谷市","k":"おぢやし"},{"n":"加茂市","k":"かもし"},{"n":"十日町市","k":"とおかまちし"},{"n":"見附市","k":"みつけし"},{"n":"村上市","k":"むらかみし"},{"n":"燕市","k":"つばめし"},{"n":"糸魚川市","k":"いといがわし"},{"n":"妙高市","k":"みょうこうし"},{"n":"五泉市","k":"ごせんし"},{"n":"上越市","k":"じょうえつし"},{"n":"阿賀野市","k":"あがのし"},{"n":"佐渡市","k":"さどし"},{"n":"魚沼市","k":"うおぬまし"},{"n":"南魚沼市","k":"みなみうおぬまし"},{"n":"胎内市","k":"たいないし"},{"n":"聖籠町","k":"せいろうまち"},{"n":"弥彦村","k":"やひこむら"},{"n":"田上町","k":"たがみまち"},{"n":"阿賀町","k":"あがまち"},{"n":"出雲崎町","k":"いずもざきまち"},{"n":"湯沢町","k":"ゆざわまち"},{"n":"津南町","k":"つなんまち"},{"n":"刈羽村","k":"かりわむら"},{"n":"関川村","k":"せきかわむら"},{"n":"粟島浦村","k":"あわしまうらむら"}],"富山県":[{"n":"富山市","k":"とやまし"},{"n":"高岡市","k":"たかおかし"},{"n":"魚津市","k":"うおづし"},{"n":"氷見市","k":"ひみし"},{"n":"滑川市","k":"なめりかわし"},{"n":"黒部市","k":"くろべし"},{"n":"砺波市","k":"となみし"},{"n":"小矢部市","k":"おやべし"},{"n":"南砺市","k":"なんとし"},{"n":"射水市","k":"いみずし"},{"n":"舟橋村","k":"ふなはしむら"},{"n":"上市町","k":"かみいちまち"},{"n":"立山町","k":"たてやままち"},{"n":"入善町","k":"にゅうぜんまち"},{"n":"朝日町","k":"あさひまち"}],"石川県":[{"n":"金沢市","k":"かなざわし"},{"n":"七尾市","k":"ななおし"},{"n":"小松市","k":"こまつし"},{"n":"輪島市","k":"わじまし"},{"n":"珠洲市","k":"すずし"},{"n":"加賀市","k":"かがし"},{"n":"羽咋市","k":"はくいし"},{"n":"かほく市","k":"かほくし"},{"n":"白山市","k":"はくさんし"},{"n":"能美市","k":"のみし"},{"n":"野々市市","k":"ののいちし"},{"n":"川北町","k":"かわきたまち"},{"n":"津幡町","k":"つばたまち"},{"n":"内灘町","k":"うちなだまち"},{"n":"志賀町","k":"しかまち"},{"n":"宝達志水町","k":"ほうだつしみずちょう"},{"n":"中能登町","k":"なかのとまち"},{"n":"穴水町","k":"あなみずまち"},{"n":"能登町","k":"のとちょう"}],"福井県":[{"n":"福井市","k":"ふくいし"},{"n":"敦賀市","k":"つるがし"},{"n":"小浜市","k":"おばまし"},{"n":"大野市","k":"おおのし"},{"n":"勝山市","k":"かつやまし"},{"n":"鯖江市","k":"さばえし"},{"n":"あわら市","k":"あわらし"},{"n":"越前市","k":"えちぜんし"},{"n":"坂井市","k":"さかいし"},{"n":"永平寺町","k":"えいへいじちょう"},{"n":"池田町","k":"いけだちょう"},{"n":"南越前町","k":"みなみえちぜんちょう"},{"n":"越前町","k":"えちぜんちょう"},{"n":"美浜町","k":"みはまちょう"},{"n":"高浜町","k":"たかはまちょう"},{"n":"おおい町","k":"おおいちょう"},{"n":"若狭町","k":"わかさちょう"}],"山梨県":[{"n":"甲府市","k":"こうふし"},{"n":"富士吉田市","k":"ふじよしだし"},{"n":"都留市","k":"つるし"},{"n":"山梨市","k":"やまなしし"},{"n":"大月市","k":"おおつきし"},{"n":"韮崎市","k":"にらさきし"},{"n":"南アルプス市","k":"みなみあるぷすし"},{"n":"北杜市","k":"ほくとし"},{"n":"甲斐市","k":"かいし"},{"n":"笛吹市","k":"ふえふきし"},{"n":"上野原市","k":"うえのはらし"},{"n":"甲州市","k":"こうしゅうし"},{"n":"中央市","k":"ちゅうおうし"},{"n":"市川三郷町","k":"いちかわみさとちょう"},{"n":"早川町","k":"はやかわちょう"},{"n":"身延町","k":"みのぶちょう"},{"n":"南部町","k":"なんぶちょう"},{"n":"富士川町","k":"ふじかわちょう"},{"n":"昭和町","k":"しょうわちょう"},{"n":"道志村","k":"どうしむら"},{"n":"西桂町","k":"にしかつらちょう"},{"n":"忍野村","k":"おしのむら"},{"n":"山中湖村","k":"やまなかこむら"},{"n":"鳴沢村","k":"なるさわむら"},{"n":"富士河口湖町","k":"ふじかわぐちこまち"},{"n":"小菅村","k":"こすげむら"},{"n":"丹波山村","k":"たばやまむら"}],"長野県":[{"n":"長野市","k":"ながのし"},{"n":"松本市","k":"まつもとし"},{"n":"上田市","k":"うえだし"},{"n":"岡谷市","k":"おかやし"},{"n":"飯田市","k":"いいだし"},{"n":"諏訪市","k":"すわし"},{"n":"須坂市","k":"すざかし"},{"n":"小諸市","k":"こもろし"},{"n":"伊那市","k":"いなし"},{"n":"駒ヶ根市","k":"こまがねし"},{"n":"中野市","k":"なかのし"},{"n":"大町市","k":"おおまちし"},{"n":"飯山市","k":"いいやまし"},{"n":"茅野市","k":"ちのし"},{"n":"塩尻市","k":"しおじりし"},{"n":"佐久市","k":"さくし"},{"n":"千曲市","k":"ちくまし"},{"n":"東御市","k":"とうみし"},{"n":"安曇野市","k":"あづみのし"},{"n":"小海町","k":"こうみまち"},{"n":"川上村","k":"かわかみむら"},{"n":"南牧村","k":"みなみまきむら"},{"n":"南相木村","k":"みなみあいきむら"},{"n":"北相木村","k":"きたあいきむら"},{"n":"佐久穂町","k":"さくほまち"},{"n":"軽井沢町","k":"かるいざわまち"},{"n":"御代田町","k":"みよたまち"},{"n":"立科町","k":"たてしなまち"},{"n":"青木村","k":"あおきむら"},{"n":"長和町","k":"ながわまち"},{"n":"下諏訪町","k":"しもすわまち"},{"n":"富士見町","k":"ふじみまち"},{"n":"原村","k":"はらむら"},{"n":"辰野町","k":"たつのまち"},{"n":"箕輪町","k":"みのわまち"},{"n":"飯島町","k":"いいじままち"},{"n":"南箕輪村","k":"みなみみのわむら"},{"n":"中川村","k":"なかがわむら"},{"n":"宮田村","k":"みやだむら"},{"n":"松川町","k":"まつかわまち"},{"n":"高森町","k":"たかもりまち"},{"n":"阿南町","k":"あなんちょう"},{"n":"阿智村","k":"あちむら"},{"n":"平谷村","k":"ひらやむら"},{"n":"根羽村","k":"ねばむら"},{"n":"下條村","k":"しもじょうむら"},{"n":"売木村","k":"うるぎむら"},{"n":"天龍村","k":"てんりゅうむら"},{"n":"泰阜村","k":"やすおかむら"},{"n":"喬木村","k":"たかぎむら"},{"n":"豊丘村","k":"とよおかむら"},{"n":"大鹿村","k":"おおしかむら"},{"n":"上松町","k":"あげまつまち"},{"n":"南木曽町","k":"なぎそまち"},{"n":"木祖村","k":"きそむら"},{"n":"王滝村","k":"おうたきむら"},{"n":"大桑村","k":"おおくわむら"},{"n":"木曽町","k":"きそまち"},{"n":"麻績村","k":"おみむら"},{"n":"生坂村","k":"いくさかむら"},{"n":"山形村","k":"やまがたむら"},{"n":"朝日村","k":"あさひむら"},{"n":"筑北村","k":"ちくほくむら"},{"n":"池田町","k":"いけだまち"},{"n":"松川村","k":"まつかわむら"},{"n":"白馬村","k":"はくばむら"},{"n":"小谷村","k":"おたりむら"},{"n":"坂城町","k":"さかきまち"},{"n":"小布施町","k":"おぶせまち"},{"n":"高山村","k":"たかやまむら"},{"n":"山ノ内町","k":"やまのうちまち"},{"n":"木島平村","k":"きじまだいらむら"},{"n":"野沢温泉村","k":"のざわおんせんむら"},{"n":"信濃町","k":"しなのまち"},{"n":"小川村","k":"おがわむら"},{"n":"飯綱町","k":"いいづなまち"},{"n":"栄村","k":"さかえむら"}],"岐阜県":[{"n":"岐阜市","k":"ぎふし"},{"n":"大垣市","k":"おおがきし"},{"n":"高山市","k":"たかやまし"},{"n":"多治見市","k":"たじみし"},{"n":"関市","k":"せきし"},{"n":"中津川市","k":"なかつがわし"},{"n":"美濃市","k":"みのし"},{"n":"瑞浪市","k":"みずなみし"},{"n":"羽島市","k":"はしまし"},{"n":"恵那市","k":"えなし"},{"n":"美濃加茂市","k":"みのかもし"},{"n":"土岐市","k":"ときし"},{"n":"各務原市","k":"かかみがはらし"},{"n":"可児市","k":"かにし"},{"n":"山県市","k":"やまがたし"},{"n":"瑞穂市","k":"みずほし"},{"n":"飛騨市","k":"ひだし"},{"n":"本巣市","k":"もとすし"},{"n":"郡上市","k":"ぐじょうし"},{"n":"下呂市","k":"げろし"},{"n":"海津市","k":"かいづし"},{"n":"岐南町","k":"ぎなんちょう"},{"n":"笠松町","k":"かさまつちょう"},{"n":"養老町","k":"ようろうちょう"},{"n":"垂井町","k":"たるいちょう"},{"n":"関ケ原町","k":"せきがはらちょう"},{"n":"神戸町","k":"ごうどちょう"},{"n":"輪之内町","k":"わのうちちょう"},{"n":"安八町","k":"あんぱちちょう"},{"n":"揖斐川町","k":"いびがわちょう"},{"n":"大野町","k":"おおのちょう"},{"n":"池田町","k":"いけだちょう"},{"n":"北方町","k":"きたがたちょう"},{"n":"坂祝町","k":"さかほぎちょう"},{"n":"富加町","k":"とみかちょう"},{"n":"川辺町","k":"かわべちょう"},{"n":"七宗町","k":"ひちそうちょう"},{"n":"八百津町","k":"やおつちょう"},{"n":"白川町","k":"しらかわちょう"},{"n":"東白川村","k":"ひがししらかわむら"},{"n":"御嵩町","k":"みたけちょう"},{"n":"白川村","k":"しらかわむら"}],"静岡県":[{"n":"静岡市葵区","k":"しずおかしあおいく"},{"n":"静岡市駿河区","k":"しずおかしするがく"},{"n":"静岡市清水区","k":"しずおかししみずく"},{"n":"浜松市中央区","k":"はままつしちゅうおうく"},{"n":"浜松市浜名区","k":"はままつしはまなく"},{"n":"浜松市天竜区","k":"はままつしてんりゅうく"},{"n":"沼津市","k":"ぬまづし"},{"n":"熱海市","k":"あたみし"},{"n":"三島市","k":"みしまし"},{"n":"富士宮市","k":"ふじのみやし"},{"n":"伊東市","k":"いとうし"},{"n":"島田市","k":"しまだし"},{"n":"富士市","k":"ふじし"},{"n":"磐田市","k":"いわたし"},{"n":"焼津市","k":"やいづし"},{"n":"掛川市","k":"かけがわし"},{"n":"藤枝市","k":"ふじえだし"},{"n":"御殿場市","k":"ごてんばし"},{"n":"袋井市","k":"ふくろいし"},{"n":"下田市","k":"しもだし"},{"n":"裾野市","k":"すそのし"},{"n":"湖西市","k":"こさいし"},{"n":"伊豆市","k":"いずし"},{"n":"御前崎市","k":"おまえざきし"},{"n":"菊川市","k":"きくがわし"},{"n":"伊豆の国市","k":"いずのくにし"},{"n":"牧之原市","k":"まきのはらし"},{"n":"東伊豆町","k":"ひがしいずちょう"},{"n":"河津町","k":"かわづちょう"},{"n":"南伊豆町","k":"みなみいずちょう"},{"n":"松崎町","k":"まつざきちょう"},{"n":"西伊豆町","k":"にしいずちょう"},{"n":"函南町","k":"かんなみちょう"},{"n":"清水町","k":"しみずちょう"},{"n":"長泉町","k":"ながいずみちょう"},{"n":"小山町","k":"おやまちょう"},{"n":"吉田町","k":"よしだちょう"},{"n":"川根本町","k":"かわねほんちょう"},{"n":"森町","k":"もりまち"}],"愛知県":[{"n":"名古屋市千種区","k":"なごやしちくさく"},{"n":"名古屋市東区","k":"なごやしひがしく"},{"n":"名古屋市北区","k":"なごやしきたく"},{"n":"名古屋市西区","k":"なごやしにしく"},{"n":"名古屋市中村区","k":"なごやしなかむらく"},{"n":"名古屋市中区","k":"なごやしなかく"},{"n":"名古屋市昭和区","k":"なごやししょうわく"},{"n":"名古屋市瑞穂区","k":"なごやしみずほく"},{"n":"名古屋市熱田区","k":"なごやしあつたく"},{"n":"名古屋市中川区","k":"なごやしなかがわく"},{"n":"名古屋市港区","k":"なごやしみなとく"},{"n":"名古屋市南区","k":"なごやしみなみく"},{"n":"名古屋市守山区","k":"なごやしもりやまく"},{"n":"名古屋市緑区","k":"なごやしみどりく"},{"n":"名古屋市名東区","k":"なごやしめいとうく"},{"n":"名古屋市天白区","k":"なごやしてんぱくく"},{"n":"豊橋市","k":"とよはしし"},{"n":"岡崎市","k":"おかざきし"},{"n":"一宮市","k":"いちのみやし"},{"n":"瀬戸市","k":"せとし"},{"n":"半田市","k":"はんだし"},{"n":"春日井市","k":"かすがいし"},{"n":"豊川市","k":"とよかわし"},{"n":"津島市","k":"つしまし"},{"n":"碧南市","k":"へきなんし"},{"n":"刈谷市","k":"かりやし"},{"n":"豊田市","k":"とよたし"},{"n":"安城市","k":"あんじょうし"},{"n":"西尾市","k":"にしおし"},{"n":"蒲郡市","k":"がまごおりし"},{"n":"犬山市","k":"いぬやまし"},{"n":"常滑市","k":"とこなめし"},{"n":"江南市","k":"こうなんし"},{"n":"小牧市","k":"こまきし"},{"n":"稲沢市","k":"いなざわし"},{"n":"新城市","k":"しんしろし"},{"n":"東海市","k":"とうかいし"},{"n":"大府市","k":"おおぶし"},{"n":"知多市","k":"ちたし"},{"n":"知立市","k":"ちりゅうし"},{"n":"尾張旭市","k":"おわりあさひし"},{"n":"高浜市","k":"たかはまし"},{"n":"岩倉市","k":"いわくらし"},{"n":"豊明市","k":"とよあけし"},{"n":"日進市","k":"にっしんし"},{"n":"田原市","k":"たはらし"},{"n":"愛西市","k":"あいさいし"},{"n":"清須市","k":"きよすし"},{"n":"北名古屋市","k":"きたなごやし"},{"n":"弥富市","k":"やとみし"},{"n":"みよし市","k":"みよしし"},{"n":"あま市","k":"あまし"},{"n":"長久手市","k":"ながくてし"},{"n":"東郷町","k":"とうごうちょう"},{"n":"豊山町","k":"とよやまちょう"},{"n":"大口町","k":"おおぐちちょう"},{"n":"扶桑町","k":"ふそうちょう"},{"n":"大治町","k":"おおはるちょう"},{"n":"蟹江町","k":"かにえちょう"},{"n":"飛島村","k":"とびしまむら"},{"n":"阿久比町","k":"あぐいちょう"},{"n":"東浦町","k":"ひがしうらちょう"},{"n":"南知多町","k":"みなみちたちょう"},{"n":"美浜町","k":"みはまちょう"},{"n":"武豊町","k":"たけとよちょう"},{"n":"幸田町","k":"こうたちょう"},{"n":"設楽町","k":"したらちょう"},{"n":"東栄町","k":"とうえいちょう"},{"n":"豊根村","k":"とよねむら"}],"三重県":[{"n":"津市","k":"つし"},{"n":"四日市市","k":"よっかいちし"},{"n":"伊勢市","k":"いせし"},{"n":"松阪市","k":"まつさかし"},{"n":"桑名市","k":"くわなし"},{"n":"鈴鹿市","k":"すずかし"},{"n":"名張市","k":"なばりし"},{"n":"尾鷲市","k":"おわせし"},{"n":"亀山市","k":"かめやまし"},{"n":"鳥羽市","k":"とばし"},{"n":"熊野市","k":"くまのし"},{"n":"いなべ市","k":"いなべし"},{"n":"志摩市","k":"しまし"},{"n":"伊賀市","k":"いがし"},{"n":"木曽岬町","k":"きそさきちょう"},{"n":"東員町","k":"とういんちょう"},{"n":"菰野町","k":"こものちょう"},{"n":"朝日町","k":"あさひちょう"},{"n":"川越町","k":"かわごえちょう"},{"n":"多気町","k":"たきちょう"},{"n":"明和町","k":"めいわちょう"},{"n":"大台町","k":"おおだいちょう"},{"n":"玉城町","k":"たまきちょう"},{"n":"度会町","k":"わたらいちょう"},{"n":"大紀町","k":"たいきちょう"},{"n":"南伊勢町","k":"みなみいせちょう"},{"n":"紀北町","k":"きほくちょう"},{"n":"御浜町","k":"みはまちょう"},{"n":"紀宝町","k":"きほうちょう"}],"滋賀県":[{"n":"大津市","k":"おおつし"},{"n":"彦根市","k":"ひこねし"},{"n":"長浜市","k":"ながはまし"},{"n":"近江八幡市","k":"おうみはちまんし"},{"n":"草津市","k":"くさつし"},{"n":"守山市","k":"もりやまし"},{"n":"栗東市","k":"りっとうし"},{"n":"甲賀市","k":"こうかし"},{"n":"野洲市","k":"やすし"},{"n":"湖南市","k":"こなんし"},{"n":"高島市","k":"たかしまし"},{"n":"東近江市","k":"ひがしおうみし"},{"n":"米原市","k":"まいばらし"},{"n":"日野町","k":"ひのちょう"},{"n":"竜王町","k":"りゅうおうちょう"},{"n":"愛荘町","k":"あいしょうちょう"},{"n":"豊郷町","k":"とよさとちょう"},{"n":"甲良町","k":"こうらちょう"},{"n":"多賀町","k":"たがちょう"}],"京都府":[{"n":"京都市北区","k":"きょうとしきたく"},{"n":"京都市上京区","k":"きょうとしかみぎょうく"},{"n":"京都市左京区","k":"きょうとしさきょうく"},{"n":"京都市中京区","k":"きょうとしなかぎょうく"},{"n":"京都市東山区","k":"きょうとしひがしやまく"},{"n":"京都市下京区","k":"きょうとししもぎょうく"},{"n":"京都市南区","k":"きょうとしみなみく"},{"n":"京都市右京区","k":"きょうとしうきょうく"},{"n":"京都市伏見区","k":"きょうとしふしみく"},{"n":"京都市山科区","k":"きょうとしやましなく"},{"n":"京都市西京区","k":"きょうとしにしきょうく"},{"n":"福知山市","k":"ふくちやまし"},{"n":"舞鶴市","k":"まいづるし"},{"n":"綾部市","k":"あやべし"},{"n":"宇治市","k":"うじし"},{"n":"宮津市","k":"みやづし"},{"n":"亀岡市","k":"かめおかし"},{"n":"城陽市","k":"じょうようし"},{"n":"向日市","k":"むこうし"},{"n":"長岡京市","k":"ながおかきょうし"},{"n":"八幡市","k":"やわたし"},{"n":"京田辺市","k":"きょうたなべし"},{"n":"京丹後市","k":"きょうたんごし"},{"n":"南丹市","k":"なんたんし"},{"n":"木津川市","k":"きづがわし"},{"n":"大山崎町","k":"おおやまざきちょう"},{"n":"久御山町","k":"くみやまちょう"},{"n":"井手町","k":"いでちょう"},{"n":"宇治田原町","k":"うじたわらちょう"},{"n":"笠置町","k":"かさぎちょう"},{"n":"和束町","k":"わづかちょう"},{"n":"精華町","k":"せいかちょう"},{"n":"南山城村","k":"みなみやましろむら"},{"n":"京丹波町","k":"きょうたんばちょう"},{"n":"伊根町","k":"いねちょう"},{"n":"与謝野町","k":"よさのちょう"}],"大阪府":[{"n":"大阪市都島区","k":"おおさかしみやこじまく"},{"n":"大阪市福島区","k":"おおさかしふくしまく"},{"n":"大阪市此花区","k":"おおさかしこのはなく"},{"n":"大阪市西区","k":"おおさかしにしく"},{"n":"大阪市港区","k":"おおさかしみなとく"},{"n":"大阪市大正区","k":"おおさかしたいしょうく"},{"n":"大阪市天王寺区","k":"おおさかしてんのうじく"},{"n":"大阪市浪速区","k":"おおさかしなにわく"},{"n":"大阪市西淀川区","k":"おおさかしにしよどがわく"},{"n":"大阪市東淀川区","k":"おおさかしひがしよどがわく"},{"n":"大阪市東成区","k":"おおさかしひがしなりく"},{"n":"大阪市生野区","k":"おおさかしいくのく"},{"n":"大阪市旭区","k":"おおさかしあさひく"},{"n":"大阪市城東区","k":"おおさかしじょうとうく"},{"n":"大阪市阿倍野区","k":"おおさかしあべのく"},{"n":"大阪市住吉区","k":"おおさかしすみよしく"},{"n":"大阪市東住吉区","k":"おおさかしひがしすみよしく"},{"n":"大阪市西成区","k":"おおさかしにしなりく"},{"n":"大阪市淀川区","k":"おおさかしよどがわく"},{"n":"大阪市鶴見区","k":"おおさかしつるみく"},{"n":"大阪市住之江区","k":"おおさかしすみのえく"},{"n":"大阪市平野区","k":"おおさかしひらのく"},{"n":"大阪市北区","k":"おおさかしきたく"},{"n":"大阪市中央区","k":"おおさかしちゅうおうく"},{"n":"堺市堺区","k":"さかいしさかいく"},{"n":"堺市中区","k":"さかいしなかく"},{"n":"堺市東区","k":"さかいしひがしく"},{"n":"堺市西区","k":"さかいしにしく"},{"n":"堺市南区","k":"さかいしみなみく"},{"n":"堺市北区","k":"さかいしきたく"},{"n":"堺市美原区","k":"さかいしみはらく"},{"n":"岸和田市","k":"きしわだし"},{"n":"豊中市","k":"とよなかし"},{"n":"池田市","k":"いけだし"},{"n":"吹田市","k":"すいたし"},{"n":"泉大津市","k":"いずみおおつし"},{"n":"高槻市","k":"たかつきし"},{"n":"貝塚市","k":"かいづかし"},{"n":"守口市","k":"もりぐちし"},{"n":"枚方市","k":"ひらかたし"},{"n":"茨木市","k":"いばらきし"},{"n":"八尾市","k":"やおし"},{"n":"泉佐野市","k":"いずみさのし"},{"n":"富田林市","k":"とんだばやしし"},{"n":"寝屋川市","k":"ねやがわし"},{"n":"河内長野市","k":"かわちながのし"},{"n":"松原市","k":"まつばらし"},{"n":"大東市","k":"だいとうし"},{"n":"和泉市","k":"いずみし"},{"n":"箕面市","k":"みのおし"},{"n":"柏原市","k":"かしわらし"},{"n":"羽曳野市","k":"はびきのし"},{"n":"門真市","k":"かどまし"},{"n":"摂津市","k":"せっつし"},{"n":"高石市","k":"たかいしし"},{"n":"藤井寺市","k":"ふじいでらし"},{"n":"東大阪市","k":"ひがしおおさかし"},{"n":"泉南市","k":"せんなんし"},{"n":"四條畷市","k":"しじょうなわてし"},{"n":"交野市","k":"かたのし"},{"n":"大阪狭山市","k":"おおさかさやまし"},{"n":"阪南市","k":"はんなんし"},{"n":"島本町","k":"しまもとちょう"},{"n":"豊能町","k":"とよのちょう"},{"n":"能勢町","k":"のせちょう"},{"n":"忠岡町","k":"ただおかちょう"},{"n":"熊取町","k":"くまとりちょう"},{"n":"田尻町","k":"たじりちょう"},{"n":"岬町","k":"みさきちょう"},{"n":"太子町","k":"たいしちょう"},{"n":"河南町","k":"かなんちょう"},{"n":"千早赤阪村","k":"ちはやあかさかむら"}],"兵庫県":[{"n":"神戸市東灘区","k":"こうべしひがしなだく"},{"n":"神戸市灘区","k":"こうべしなだく"},{"n":"神戸市兵庫区","k":"こうべしひょうごく"},{"n":"神戸市長田区","k":"こうべしながたく"},{"n":"神戸市須磨区","k":"こうべしすまく"},{"n":"神戸市垂水区","k":"こうべしたるみく"},{"n":"神戸市北区","k":"こうべしきたく"},{"n":"神戸市中央区","k":"こうべしちゅうおうく"},{"n":"神戸市西区","k":"こうべしにしく"},{"n":"姫路市","k":"ひめじし"},{"n":"尼崎市","k":"あまがさきし"},{"n":"明石市","k":"あかしし"},{"n":"西宮市","k":"にしのみやし"},{"n":"洲本市","k":"すもとし"},{"n":"芦屋市","k":"あしやし"},{"n":"伊丹市","k":"いたみし"},{"n":"相生市","k":"あいおいし"},{"n":"豊岡市","k":"とよおかし"},{"n":"加古川市","k":"かこがわし"},{"n":"赤穂市","k":"あこうし"},{"n":"西脇市","k":"にしわきし"},{"n":"宝塚市","k":"たからづかし"},{"n":"三木市","k":"みきし"},{"n":"高砂市","k":"たかさごし"},{"n":"川西市","k":"かわにしし"},{"n":"小野市","k":"おのし"},{"n":"三田市","k":"さんだし"},{"n":"加西市","k":"かさいし"},{"n":"丹波篠山市","k":"たんばささやまし"},{"n":"養父市","k":"やぶし"},{"n":"丹波市","k":"たんばし"},{"n":"南あわじ市","k":"みなみあわじし"},{"n":"朝来市","k":"あさごし"},{"n":"淡路市","k":"あわじし"},{"n":"宍粟市","k":"しそうし"},{"n":"加東市","k":"かとうし"},{"n":"たつの市","k":"たつのし"},{"n":"猪名川町","k":"いながわちょう"},{"n":"多可町","k":"たかちょう"},{"n":"稲美町","k":"いなみちょう"},{"n":"播磨町","k":"はりまちょう"},{"n":"市川町","k":"いちかわちょう"},{"n":"福崎町","k":"ふくさきちょう"},{"n":"神河町","k":"かみかわちょう"},{"n":"太子町","k":"たいしちょう"},{"n":"上郡町","k":"かみごおりちょう"},{"n":"佐用町","k":"さようちょう"},{"n":"香美町","k":"かみちょう"},{"n":"新温泉町","k":"しんおんせんちょう"}],"奈良県":[{"n":"奈良市","k":"ならし"},{"n":"大和高田市","k":"やまとたかだし"},{"n":"大和郡山市","k":"やまとこおりやまし"},{"n":"天理市","k":"てんりし"},{"n":"橿原市","k":"かしはらし"},{"n":"桜井市","k":"さくらいし"},{"n":"五條市","k":"ごじょうし"},{"n":"御所市","k":"ごせし"},{"n":"生駒市","k":"いこまし"},{"n":"香芝市","k":"かしばし"},{"n":"葛城市","k":"かつらぎし"},{"n":"宇陀市","k":"うだし"},{"n":"山添村","k":"やまぞえむら"},{"n":"平群町","k":"へぐりちょう"},{"n":"三郷町","k":"さんごうちょう"},{"n":"斑鳩町","k":"いかるがちょう"},{"n":"安堵町","k":"あんどちょう"},{"n":"川西町","k":"かわにしちょう"},{"n":"三宅町","k":"みやけちょう"},{"n":"田原本町","k":"たわらもとちょう"},{"n":"曽爾村","k":"そにむら"},{"n":"御杖村","k":"みつえむら"},{"n":"高取町","k":"たかとりちょう"},{"n":"明日香村","k":"あすかむら"},{"n":"上牧町","k":"かんまきちょう"},{"n":"王寺町","k":"おうじちょう"},{"n":"広陵町","k":"こうりょうちょう"},{"n":"河合町","k":"かわいちょう"},{"n":"吉野町","k":"よしのちょう"},{"n":"大淀町","k":"おおよどちょう"},{"n":"下市町","k":"しもいちちょう"},{"n":"黒滝村","k":"くろたきむら"},{"n":"天川村","k":"てんかわむら"},{"n":"野迫川村","k":"のせがわむら"},{"n":"十津川村","k":"とつかわむら"},{"n":"下北山村","k":"しもきたやまむら"},{"n":"上北山村","k":"かみきたやまむら"},{"n":"川上村","k":"かわかみむら"},{"n":"東吉野村","k":"ひがしよしのむら"}],"和歌山県":[{"n":"和歌山市","k":"わかやまし"},{"n":"海南市","k":"かいなんし"},{"n":"橋本市","k":"はしもとし"},{"n":"有田市","k":"ありだし"},{"n":"御坊市","k":"ごぼうし"},{"n":"田辺市","k":"たなべし"},{"n":"新宮市","k":"しんぐうし"},{"n":"紀の川市","k":"きのかわし"},{"n":"岩出市","k":"いわでし"},{"n":"紀美野町","k":"きみのちょう"},{"n":"かつらぎ町","k":"かつらぎちょう"},{"n":"九度山町","k":"くどやまちょう"},{"n":"高野町","k":"こうやちょう"},{"n":"湯浅町","k":"ゆあさちょう"},{"n":"広川町","k":"ひろがわちょう"},{"n":"有田川町","k":"ありだがわちょう"},{"n":"美浜町","k":"みはまちょう"},{"n":"日高町","k":"ひだかちょう"},{"n":"由良町","k":"ゆらちょう"},{"n":"印南町","k":"いなみちょう"},{"n":"みなべ町","k":"みなべちょう"},{"n":"日高川町","k":"ひだかがわちょう"},{"n":"白浜町","k":"しらはまちょう"},{"n":"上富田町","k":"かみとんだちょう"},{"n":"すさみ町","k":"すさみちょう"},{"n":"那智勝浦町","k":"なちかつうらちょう"},{"n":"太地町","k":"たいじちょう"},{"n":"古座川町","k":"こざがわちょう"},{"n":"北山村","k":"きたやまむら"},{"n":"串本町","k":"くしもとちょう"}],"鳥取県":[{"n":"鳥取市","k":"とっとりし"},{"n":"米子市","k":"よなごし"},{"n":"倉吉市","k":"くらよしし"},{"n":"境港市","k":"さかいみなとし"},{"n":"岩美町","k":"いわみちょう"},{"n":"若桜町","k":"わかさちょう"},{"n":"智頭町","k":"ちづちょう"},{"n":"八頭町","k":"やずちょう"},{"n":"三朝町","k":"みささちょう"},{"n":"湯梨浜町","k":"ゆりはまちょう"},{"n":"琴浦町","k":"ことうらちょう"},{"n":"北栄町","k":"ほくえいちょう"},{"n":"日吉津村","k":"ひえづそん"},{"n":"大山町","k":"だいせんちょう"},{"n":"南部町","k":"なんぶちょう"},{"n":"伯耆町","k":"ほうきちょう"},{"n":"日南町","k":"にちなんちょう"},{"n":"日野町","k":"ひのちょう"},{"n":"江府町","k":"こうふちょう"}],"島根県":[{"n":"松江市","k":"まつえし"},{"n":"浜田市","k":"はまだし"},{"n":"出雲市","k":"いずもし"},{"n":"益田市","k":"ますだし"},{"n":"大田市","k":"おおだし"},{"n":"安来市","k":"やすぎし"},{"n":"江津市","k":"ごうつし"},{"n":"雲南市","k":"うんなんし"},{"n":"奥出雲町","k":"おくいずもちょう"},{"n":"飯南町","k":"いいなんちょう"},{"n":"川本町","k":"かわもとまち"},{"n":"美郷町","k":"みさとちょう"},{"n":"邑南町","k":"おおなんちょう"},{"n":"津和野町","k":"つわのちょう"},{"n":"吉賀町","k":"よしかちょう"},{"n":"海士町","k":"あまちょう"},{"n":"西ノ島町","k":"にしのしまちょう"},{"n":"知夫村","k":"ちぶむら"},{"n":"隠岐の島町","k":"おきのしまちょう"}],"岡山県":[{"n":"岡山市北区","k":"おかやましきたく"},{"n":"岡山市中区","k":"おかやましなかく"},{"n":"岡山市東区","k":"おかやましひがしく"},{"n":"岡山市南区","k":"おかやましみなみく"},{"n":"倉敷市","k":"くらしきし"},{"n":"津山市","k":"つやまし"},{"n":"玉野市","k":"たまのし"},{"n":"笠岡市","k":"かさおかし"},{"n":"井原市","k":"いばらし"},{"n":"総社市","k":"そうじゃし"},{"n":"高梁市","k":"たかはしし"},{"n":"新見市","k":"にいみし"},{"n":"備前市","k":"びぜんし"},{"n":"瀬戸内市","k":"せとうちし"},{"n":"赤磐市","k":"あかいわし"},{"n":"真庭市","k":"まにわし"},{"n":"美作市","k":"みまさかし"},{"n":"浅口市","k":"あさくちし"},{"n":"和気町","k":"わけちょう"},{"n":"早島町","k":"はやしまちょう"},{"n":"里庄町","k":"さとしょうちょう"},{"n":"矢掛町","k":"やかげちょう"},{"n":"新庄村","k":"しんじょうそん"},{"n":"鏡野町","k":"かがみのちょう"},{"n":"勝央町","k":"しょうおうちょう"},{"n":"奈義町","k":"なぎちょう"},{"n":"西粟倉村","k":"にしあわくらそん"},{"n":"久米南町","k":"くめなんちょう"},{"n":"美咲町","k":"みさきちょう"},{"n":"吉備中央町","k":"きびちゅうおうちょう"}],"広島県":[{"n":"広島市中区","k":"ひろしましなかく"},{"n":"広島市東区","k":"ひろしましひがしく"},{"n":"広島市南区","k":"ひろしましみなみく"},{"n":"広島市西区","k":"ひろしましにしく"},{"n":"広島市安佐南区","k":"ひろしましあさみなみく"},{"n":"広島市安佐北区","k":"ひろしましあさきたく"},{"n":"広島市安芸区","k":"ひろしましあきく"},{"n":"広島市佐伯区","k":"ひろしましさえきく"},{"n":"呉市","k":"くれし"},{"n":"竹原市","k":"たけはらし"},{"n":"三原市","k":"みはらし"},{"n":"尾道市","k":"おのみちし"},{"n":"福山市","k":"ふくやまし"},{"n":"府中市","k":"ふちゅうし"},{"n":"三次市","k":"みよしし"},{"n":"庄原市","k":"しょうばらし"},{"n":"大竹市","k":"おおたけし"},{"n":"東広島市","k":"ひがしひろしまし"},{"n":"廿日市市","k":"はつかいちし"},{"n":"安芸高田市","k":"あきたかたし"},{"n":"江田島市","k":"えたじまし"},{"n":"府中町","k":"ふちゅうちょう"},{"n":"海田町","k":"かいたちょう"},{"n":"熊野町","k":"くまのちょう"},{"n":"坂町","k":"さかちょう"},{"n":"安芸太田町","k":"あきおおたちょう"},{"n":"北広島町","k":"きたひろしまちょう"},{"n":"大崎上島町","k":"おおさきかみじまちょう"},{"n":"世羅町","k":"せらちょう"},{"n":"神石高原町","k":"じんせきこうげんちょう"}],"山口県":[{"n":"下関市","k":"しものせきし"},{"n":"宇部市","k":"うべし"},{"n":"山口市","k":"やまぐちし"},{"n":"萩市","k":"はぎし"},{"n":"防府市","k":"ほうふし"},{"n":"下松市","k":"くだまつし"},{"n":"岩国市","k":"いわくにし"},{"n":"光市","k":"ひかりし"},{"n":"長門市","k":"ながとし"},{"n":"柳井市","k":"やないし"},{"n":"美祢市","k":"みねし"},{"n":"周南市","k":"しゅうなんし"},{"n":"山陽小野田市","k":"さんようおのだし"},{"n":"周防大島町","k":"すおうおおしまちょう"},{"n":"和木町","k":"わきちょう"},{"n":"上関町","k":"かみのせきちょう"},{"n":"田布施町","k":"たぶせちょう"},{"n":"平生町","k":"ひらおちょう"},{"n":"阿武町","k":"あぶちょう"}],"徳島県":[{"n":"徳島市","k":"とくしまし"},{"n":"鳴門市","k":"なるとし"},{"n":"小松島市","k":"こまつしまし"},{"n":"阿南市","k":"あなんし"},{"n":"吉野川市","k":"よしのがわし"},{"n":"阿波市","k":"あわし"},{"n":"美馬市","k":"みまし"},{"n":"三好市","k":"みよしし"},{"n":"勝浦町","k":"かつうらちょう"},{"n":"上勝町","k":"かみかつちょう"},{"n":"佐那河内村","k":"さなごうちそん"},{"n":"石井町","k":"いしいちょう"},{"n":"神山町","k":"かみやまちょう"},{"n":"那賀町","k":"なかちょう"},{"n":"牟岐町","k":"むぎちょう"},{"n":"美波町","k":"みなみちょう"},{"n":"海陽町","k":"かいようちょう"},{"n":"松茂町","k":"まつしげちょう"},{"n":"北島町","k":"きたじまちょう"},{"n":"藍住町","k":"あいずみちょう"},{"n":"板野町","k":"いたのちょう"},{"n":"上板町","k":"かみいたちょう"},{"n":"つるぎ町","k":"つるぎちょう"},{"n":"東みよし町","k":"ひがしみよしちょう"}],"香川県":[{"n":"高松市","k":"たかまつし"},{"n":"丸亀市","k":"まるがめし"},{"n":"坂出市","k":"さかいでし"},{"n":"善通寺市","k":"ぜんつうじし"},{"n":"観音寺市","k":"かんおんじし"},{"n":"さぬき市","k":"さぬきし"},{"n":"東かがわ市","k":"ひがしかがわし"},{"n":"三豊市","k":"みとよし"},{"n":"土庄町","k":"とのしょうちょう"},{"n":"小豆島町","k":"しょうどしまちょう"},{"n":"三木町","k":"みきちょう"},{"n":"直島町","k":"なおしまちょう"},{"n":"宇多津町","k":"うたづちょう"},{"n":"綾川町","k":"あやがわちょう"},{"n":"琴平町","k":"ことひらちょう"},{"n":"多度津町","k":"たどつちょう"},{"n":"まんのう町","k":"まんのうちょう"}],"愛媛県":[{"n":"松山市","k":"まつやまし"},{"n":"今治市","k":"いまばりし"},{"n":"宇和島市","k":"うわじまし"},{"n":"八幡浜市","k":"やわたはまし"},{"n":"新居浜市","k":"にいはまし"},{"n":"西条市","k":"さいじょうし"},{"n":"大洲市","k":"おおずし"},{"n":"伊予市","k":"いよし"},{"n":"四国中央市","k":"しこくちゅうおうし"},{"n":"西予市","k":"せいよし"},{"n":"東温市","k":"とうおんし"},{"n":"上島町","k":"かみじまちょう"},{"n":"久万高原町","k":"くまこうげんちょう"},{"n":"松前町","k":"まさきちょう"},{"n":"砥部町","k":"とべちょう"},{"n":"内子町","k":"うちこちょう"},{"n":"伊方町","k":"いかたちょう"},{"n":"松野町","k":"まつのちょう"},{"n":"鬼北町","k":"きほくちょう"},{"n":"愛南町","k":"あいなんちょう"}],"高知県":[{"n":"高知市","k":"こうちし"},{"n":"室戸市","k":"むろとし"},{"n":"安芸市","k":"あきし"},{"n":"南国市","k":"なんこくし"},{"n":"土佐市","k":"とさし"},{"n":"須崎市","k":"すさきし"},{"n":"宿毛市","k":"すくもし"},{"n":"土佐清水市","k":"とさしみずし"},{"n":"四万十市","k":"しまんとし"},{"n":"香南市","k":"こうなんし"},{"n":"香美市","k":"かみし"},{"n":"東洋町","k":"とうようちょう"},{"n":"奈半利町","k":"なはりちょう"},{"n":"田野町","k":"たのちょう"},{"n":"安田町","k":"やすだちょう"},{"n":"北川村","k":"きたがわむら"},{"n":"馬路村","k":"うまじむら"},{"n":"芸西村","k":"げいせいむら"},{"n":"本山町","k":"もとやまちょう"},{"n":"大豊町","k":"おおとよちょう"},{"n":"土佐町","k":"とさちょう"},{"n":"大川村","k":"おおかわむら"},{"n":"いの町","k":"いのちょう"},{"n":"仁淀川町","k":"によどがわちょう"},{"n":"中土佐町","k":"なかとさちょう"},{"n":"佐川町","k":"さかわちょう"},{"n":"越知町","k":"おちちょう"},{"n":"檮原町","k":"ゆすはらちょう"},{"n":"日高村","k":"ひだかむら"},{"n":"津野町","k":"つのちょう"},{"n":"四万十町","k":"しまんとちょう"},{"n":"大月町","k":"おおつきちょう"},{"n":"三原村","k":"みはらむら"},{"n":"黒潮町","k":"くろしおちょう"}],"福岡県":[{"n":"北九州市門司区","k":"きたきゅうしゅうしもじく"},{"n":"北九州市若松区","k":"きたきゅうしゅうしわかまつく"},{"n":"北九州市戸畑区","k":"きたきゅうしゅうしとばたく"},{"n":"北九州市小倉北区","k":"きたきゅうしゅうしこくらきたく"},{"n":"北九州市小倉南区","k":"きたきゅうしゅうしこくらみなみく"},{"n":"北九州市八幡東区","k":"きたきゅうしゅうしやはたひがしく"},{"n":"北九州市八幡西区","k":"きたきゅうしゅうしやはたにしく"},{"n":"福岡市東区","k":"ふくおかしひがしく"},{"n":"福岡市博多区","k":"ふくおかしはかたく"},{"n":"福岡市中央区","k":"ふくおかしちゅうおうく"},{"n":"福岡市南区","k":"ふくおかしみなみく"},{"n":"福岡市西区","k":"ふくおかしにしく"},{"n":"福岡市城南区","k":"ふくおかしじょうなんく"},{"n":"福岡市早良区","k":"ふくおかしさわらく"},{"n":"大牟田市","k":"おおむたし"},{"n":"久留米市","k":"くるめし"},{"n":"直方市","k":"のおがたし"},{"n":"飯塚市","k":"いいづかし"},{"n":"田川市","k":"たがわし"},{"n":"柳川市","k":"やながわし"},{"n":"八女市","k":"やめし"},{"n":"筑後市","k":"ちくごし"},{"n":"大川市","k":"おおかわし"},{"n":"行橋市","k":"ゆくはしし"},{"n":"豊前市","k":"ぶぜんし"},{"n":"中間市","k":"なかまし"},{"n":"小郡市","k":"おごおりし"},{"n":"筑紫野市","k":"ちくしのし"},{"n":"春日市","k":"かすがし"},{"n":"大野城市","k":"おおのじょうし"},{"n":"宗像市","k":"むなかたし"},{"n":"太宰府市","k":"だざいふし"},{"n":"古賀市","k":"こがし"},{"n":"福津市","k":"ふくつし"},{"n":"うきは市","k":"うきはし"},{"n":"宮若市","k":"みやわかし"},{"n":"嘉麻市","k":"かまし"},{"n":"朝倉市","k":"あさくらし"},{"n":"みやま市","k":"みやまし"},{"n":"糸島市","k":"いとしまし"},{"n":"那珂川市","k":"なかがわし"},{"n":"宇美町","k":"うみまち"},{"n":"篠栗町","k":"ささぐりまち"},{"n":"志免町","k":"しめまち"},{"n":"須恵町","k":"すえまち"},{"n":"新宮町","k":"しんぐうまち"},{"n":"久山町","k":"ひさやままち"},{"n":"粕屋町","k":"かすやまち"},{"n":"芦屋町","k":"あしやまち"},{"n":"水巻町","k":"みずまきまち"},{"n":"岡垣町","k":"おかがきまち"},{"n":"遠賀町","k":"おんがちょう"},{"n":"小竹町","k":"こたけまち"},{"n":"鞍手町","k":"くらてまち"},{"n":"桂川町","k":"けいせんまち"},{"n":"筑前町","k":"ちくぜんまち"},{"n":"東峰村","k":"とうほうむら"},{"n":"大刀洗町","k":"たちあらいまち"},{"n":"大木町","k":"おおきまち"},{"n":"広川町","k":"ひろかわまち"},{"n":"香春町","k":"かわらまち"},{"n":"添田町","k":"そえだまち"},{"n":"糸田町","k":"いとだまち"},{"n":"川崎町","k":"かわさきまち"},{"n":"大任町","k":"おおとうまち"},{"n":"赤村","k":"あかむら"},{"n":"福智町","k":"ふくちまち"},{"n":"苅田町","k":"かんだまち"},{"n":"みやこ町","k":"みやこまち"},{"n":"吉富町","k":"よしとみまち"},{"n":"上毛町","k":"こうげまち"},{"n":"築上町","k":"ちくじょうまち"}],"佐賀県":[{"n":"佐賀市","k":"さがし"},{"n":"唐津市","k":"からつし"},{"n":"鳥栖市","k":"とすし"},{"n":"多久市","k":"たくし"},{"n":"伊万里市","k":"いまりし"},{"n":"武雄市","k":"たけおし"},{"n":"鹿島市","k":"かしまし"},{"n":"小城市","k":"おぎし"},{"n":"嬉野市","k":"うれしのし"},{"n":"神埼市","k":"かんざきし"},{"n":"吉野ヶ里町","k":"よしのがりちょう"},{"n":"基山町","k":"きやまちょう"},{"n":"上峰町","k":"かみみねちょう"},{"n":"みやき町","k":"みやきちょう"},{"n":"玄海町","k":"げんかいちょう"},{"n":"有田町","k":"ありたちょう"},{"n":"大町町","k":"おおまちちょう"},{"n":"江北町","k":"こうほくまち"},{"n":"白石町","k":"しろいしちょう"},{"n":"太良町","k":"たらちょう"}],"長崎県":[{"n":"長崎市","k":"ながさきし"},{"n":"佐世保市","k":"させぼし"},{"n":"島原市","k":"しまばらし"},{"n":"諫早市","k":"いさはやし"},{"n":"大村市","k":"おおむらし"},{"n":"平戸市","k":"ひらどし"},{"n":"松浦市","k":"まつうらし"},{"n":"対馬市","k":"つしまし"},{"n":"壱岐市","k":"いきし"},{"n":"五島市","k":"ごとうし"},{"n":"西海市","k":"さいかいし"},{"n":"雲仙市","k":"うんぜんし"},{"n":"南島原市","k":"みなみしまばらし"},{"n":"長与町","k":"ながよちょう"},{"n":"時津町","k":"とぎつちょう"},{"n":"東彼杵町","k":"ひがしそのぎちょう"},{"n":"川棚町","k":"かわたなちょう"},{"n":"波佐見町","k":"はさみちょう"},{"n":"小値賀町","k":"おぢかちょう"},{"n":"佐々町","k":"さざちょう"},{"n":"新上五島町","k":"しんかみごとうちょう"}],"熊本県":[{"n":"熊本市中央区","k":"くまもとしちゅうおうく"},{"n":"熊本市東区","k":"くまもとしひがしく"},{"n":"熊本市西区","k":"くまもとしにしく"},{"n":"熊本市南区","k":"くまもとしみなみく"},{"n":"熊本市北区","k":"くまもとしきたく"},{"n":"八代市","k":"やつしろし"},{"n":"人吉市","k":"ひとよしし"},{"n":"荒尾市","k":"あらおし"},{"n":"水俣市","k":"みなまたし"},{"n":"玉名市","k":"たまなし"},{"n":"山鹿市","k":"やまがし"},{"n":"菊池市","k":"きくちし"},{"n":"宇土市","k":"うとし"},{"n":"上天草市","k":"かみあまくさし"},{"n":"宇城市","k":"うきし"},{"n":"阿蘇市","k":"あそし"},{"n":"天草市","k":"あまくさし"},{"n":"合志市","k":"こうしし"},{"n":"美里町","k":"みさとまち"},{"n":"玉東町","k":"ぎょくとうまち"},{"n":"南関町","k":"なんかんまち"},{"n":"長洲町","k":"ながすまち"},{"n":"和水町","k":"なごみまち"},{"n":"大津町","k":"おおづまち"},{"n":"菊陽町","k":"きくようまち"},{"n":"南小国町","k":"みなみおぐにまち"},{"n":"小国町","k":"おぐにまち"},{"n":"産山村","k":"うぶやまむら"},{"n":"高森町","k":"たかもりまち"},{"n":"西原村","k":"にしはらむら"},{"n":"南阿蘇村","k":"みなみあそむら"},{"n":"御船町","k":"みふねまち"},{"n":"嘉島町","k":"かしままち"},{"n":"益城町","k":"ましきまち"},{"n":"甲佐町","k":"こうさまち"},{"n":"山都町","k":"やまとちょう"},{"n":"氷川町","k":"ひかわちょう"},{"n":"芦北町","k":"あしきたまち"},{"n":"津奈木町","k":"つなぎまち"},{"n":"錦町","k":"にしきまち"},{"n":"多良木町","k":"たらぎまち"},{"n":"湯前町","k":"ゆのまえまち"},{"n":"水上村","k":"みずかみむら"},{"n":"相良村","k":"さがらむら"},{"n":"五木村","k":"いつきむら"},{"n":"山江村","k":"やまえむら"},{"n":"球磨村","k":"くまむら"},{"n":"あさぎり町","k":"あさぎりちょう"},{"n":"苓北町","k":"れいほくまち"}],"大分県":[{"n":"大分市","k":"おおいたし"},{"n":"別府市","k":"べっぷし"},{"n":"中津市","k":"なかつし"},{"n":"日田市","k":"ひたし"},{"n":"佐伯市","k":"さいきし"},{"n":"臼杵市","k":"うすきし"},{"n":"津久見市","k":"つくみし"},{"n":"竹田市","k":"たけたし"},{"n":"豊後高田市","k":"ぶんごたかだし"},{"n":"杵築市","k":"きつきし"},{"n":"宇佐市","k":"うさし"},{"n":"豊後大野市","k":"ぶんごおおのし"},{"n":"由布市","k":"ゆふし"},{"n":"国東市","k":"くにさきし"},{"n":"姫島村","k":"ひめしまむら"},{"n":"日出町","k":"ひじまち"},{"n":"九重町","k":"ここのえまち"},{"n":"玖珠町","k":"くすまち"}],"宮崎県":[{"n":"宮崎市","k":"みやざきし"},{"n":"都城市","k":"みやこのじょうし"},{"n":"延岡市","k":"のべおかし"},{"n":"日南市","k":"にちなんし"},{"n":"小林市","k":"こばやしし"},{"n":"日向市","k":"ひゅうがし"},{"n":"串間市","k":"くしまし"},{"n":"西都市","k":"さいとし"},{"n":"えびの市","k":"えびのし"},{"n":"三股町","k":"みまたちょう"},{"n":"高原町","k":"たかはるちょう"},{"n":"国富町","k":"くにとみちょう"},{"n":"綾町","k":"あやちょう"},{"n":"高鍋町","k":"たかなべちょう"},{"n":"新富町","k":"しんとみちょう"},{"n":"西米良村","k":"にしめらそん"},{"n":"木城町","k":"きじょうちょう"},{"n":"川南町","k":"かわみなみちょう"},{"n":"都農町","k":"つのちょう"},{"n":"門川町","k":"かどがわちょう"},{"n":"諸塚村","k":"もろつかそん"},{"n":"椎葉村","k":"しいばそん"},{"n":"美郷町","k":"みさとちょう"},{"n":"高千穂町","k":"たかちほちょう"},{"n":"日之影町","k":"ひのかげちょう"},{"n":"五ヶ瀬町","k":"ごかせちょう"}],"鹿児島県":[{"n":"鹿児島市","k":"かごしまし"},{"n":"鹿屋市","k":"かのやし"},{"n":"枕崎市","k":"まくらざきし"},{"n":"阿久根市","k":"あくねし"},{"n":"出水市","k":"いずみし"},{"n":"指宿市","k":"いぶすきし"},{"n":"西之表市","k":"にしのおもてし"},{"n":"垂水市","k":"たるみずし"},{"n":"薩摩川内市","k":"さつませんだいし"},{"n":"日置市","k":"ひおきし"},{"n":"曽於市","k":"そおし"},{"n":"霧島市","k":"きりしまし"},{"n":"いちき串木野市","k":"いちきくしきのし"},{"n":"南さつま市","k":"みなみさつまし"},{"n":"志布志市","k":"しぶしし"},{"n":"奄美市","k":"あまみし"},{"n":"南九州市","k":"みなみきゅうしゅうし"},{"n":"伊佐市","k":"いさし"},{"n":"姶良市","k":"あいらし"},{"n":"三島村","k":"みしまむら"},{"n":"十島村","k":"としまむら"},{"n":"さつま町","k":"さつまちょう"},{"n":"長島町","k":"ながしまちょう"},{"n":"湧水町","k":"ゆうすいちょう"},{"n":"大崎町","k":"おおさきちょう"},{"n":"東串良町","k":"ひがしくしらちょう"},{"n":"錦江町","k":"きんこうちょう"},{"n":"南大隅町","k":"みなみおおすみちょう"},{"n":"肝付町","k":"きもつきちょう"},{"n":"中種子町","k":"なかたねちょう"},{"n":"南種子町","k":"みなみたねちょう"},{"n":"屋久島町","k":"やくしまちょう"},{"n":"大和村","k":"やまとそん"},{"n":"宇検村","k":"うけんそん"},{"n":"瀬戸内町","k":"せとうちちょう"},{"n":"龍郷町","k":"たつごうちょう"},{"n":"喜界町","k":"きかいちょう"},{"n":"徳之島町","k":"とくのしまちょう"},{"n":"天城町","k":"あまぎちょう"},{"n":"伊仙町","k":"いせんちょう"},{"n":"和泊町","k":"わどまりちょう"},{"n":"知名町","k":"ちなちょう"},{"n":"与論町","k":"よろんちょう"}],"沖縄県":[{"n":"那覇市","k":"なはし"},{"n":"宜野湾市","k":"ぎのわんし"},{"n":"石垣市","k":"いしがきし"},{"n":"浦添市","k":"うらそえし"},{"n":"名護市","k":"なごし"},{"n":"糸満市","k":"いとまんし"},{"n":"沖縄市","k":"おきなわし"},{"n":"豊見城市","k":"とみぐすくし"},{"n":"うるま市","k":"うるまし"},{"n":"宮古島市","k":"みやこじまし"},{"n":"南城市","k":"なんじょうし"},{"n":"国頭村","k":"くにがみそん"},{"n":"大宜味村","k":"おおぎみそん"},{"n":"東村","k":"ひがしそん"},{"n":"今帰仁村","k":"なきじんそん"},{"n":"本部町","k":"もとぶちょう"},{"n":"恩納村","k":"おんなそん"},{"n":"宜野座村","k":"ぎのざそん"},{"n":"金武町","k":"きんちょう"},{"n":"伊江村","k":"いえそん"},{"n":"読谷村","k":"よみたんそん"},{"n":"嘉手納町","k":"かでなちょう"},{"n":"北谷町","k":"ちゃたんちょう"},{"n":"北中城村","k":"きたなかぐすくそん"},{"n":"中城村","k":"なかぐすくそん"},{"n":"西原町","k":"にしはらちょう"},{"n":"与那原町","k":"よなばるちょう"},{"n":"南風原町","k":"はえばるちょう"},{"n":"渡嘉敷村","k":"とかしきそん"},{"n":"座間味村","k":"ざまみそん"},{"n":"粟国村","k":"あぐにそん"},{"n":"渡名喜村","k":"となきそん"},{"n":"南大東村","k":"みなみだいとうそん"},{"n":"北大東村","k":"きただいとうそん"},{"n":"伊平屋村","k":"いへやそん"},{"n":"伊是名村","k":"いぜなそん"},{"n":"久米島町","k":"くめじまちょう"},{"n":"八重瀬町","k":"やえせちょう"},{"n":"多良間村","k":"たらまそん"},{"n":"竹富町","k":"たけとみちょう"},{"n":"与那国町","k":"よなぐにちょう"}]};
+  const PREFECTURES = PREFECTURE_LIST.map(p => p.n);
+
+  let people = loadPeople();
+  let editingId = null;
+  let pendingPhoto = null;
+  let detailId = null;
+  let returnToDetailAfterEdit = false;
+
+  const grid = document.getElementById('grid');
+  const emptyState = document.getElementById('emptyState');
+  const eventsSection = document.getElementById('eventsSection');
+  const eventsList = document.getElementById('eventsList');
+  const searchInput = document.getElementById('searchInput');
+  const overlay = document.getElementById('overlay');
+  const modalTitle = document.getElementById('modalTitle');
+  const form = document.getElementById('personForm');
+  const nameInput = document.getElementById('nameInput');
+  const birthdateInput = document.getElementById('birthdateInput');
+  const groupInput = document.getElementById('groupInput');
+  const hometownInput = document.getElementById('hometownInput');
+  const residencePrefInput = document.getElementById('residencePrefInput');
+  const residenceCityInput = document.getElementById('residenceCityInput');
+  const highSchoolInput = document.getElementById('highSchoolInput');
+  const highSchoolSearchBtn = document.getElementById('highSchoolSearchBtn');
+  const universityInput = document.getElementById('universityInput');
+  const universitySearchBtn = document.getElementById('universitySearchBtn');
+  const bestMemoryInput = document.getElementById('bestMemoryInput');
+  const memoInput = document.getElementById('memoInput');
+  const photoInput = document.getElementById('photoInput');
+  const photoPreview = document.getElementById('photoPreview');
+  const photoPlaceholder = document.getElementById('photoPlaceholder');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const syncStatus = document.getElementById('syncStatus');
+  const googleSignInBtn = document.getElementById('googleSignInBtn');
+  const googleSignOutBtn = document.getElementById('googleSignOutBtn');
+
+  const detailOverlay = document.getElementById('detailOverlay');
+  const detailPhotoWrap = document.getElementById('detailPhotoWrap');
+  const detailName = document.getElementById('detailName');
+  const detailGroupTag = document.getElementById('detailGroupTag');
+  const detailGroupText = document.getElementById('detailGroupText');
+  const detailBirthdate = document.getElementById('detailBirthdate');
+  const detailHometown = document.getElementById('detailHometown');
+  const detailResidence = document.getElementById('detailResidence');
+  const detailHighSchool = document.getElementById('detailHighSchool');
+  const detailUniversity = document.getElementById('detailUniversity');
+  const detailBestMemory = document.getElementById('detailBestMemory');
+  const detailFamilyInput = document.getElementById('detailFamilyInput');
+  const detailMemo = document.getElementById('detailMemo');
+  const likesChips = document.getElementById('likesChips');
+  const likeInput = document.getElementById('likeInput');
+  const addLikeBtn = document.getElementById('addLikeBtn');
+  const photoGrid = document.getElementById('photoGrid');
+  const galleryInput = document.getElementById('galleryInput');
+  const addPhotoBtn = document.getElementById('addPhotoBtn');
+  const detailEditBtn = document.getElementById('detailEditBtn');
+  const detailCloseBtn = document.getElementById('detailCloseBtn');
+  const detailDeleteBtn = document.getElementById('detailDeleteBtn');
+
+  function loadPeople() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      list.forEach(ensurePersonDefaults);
+      return list;
+    } catch (e) {
+      console.error('読み込みに失敗しました', e);
+      return [];
+    }
+  }
+
+  function ensurePersonDefaults(p) {
+    if (!Array.isArray(p.likes)) p.likes = [];
+    if (!Array.isArray(p.photos)) p.photos = [];
+    if (typeof p.group !== 'string') p.group = '';
+    if (typeof p.family !== 'string') p.family = (typeof p.relation === 'string') ? p.relation : '';
+    if (typeof p.hometown !== 'string') p.hometown = '';
+    if (typeof p.residence !== 'string') p.residence = '';
+    if (typeof p.highSchool !== 'string') p.highSchool = '';
+    if (typeof p.university !== 'string') p.university = '';
+    if (typeof p.bestMemory !== 'string') p.bestMemory = '';
+    return p;
+  }
+
+  function savePeople() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
+    schedulePushToDrive();
+  }
+
+  // --- Google Drive同期 ---
+
+  let driveAccessToken = null;
+  let driveFileId = null;
+  let driveTokenClient = null;
+  let drivePushTimer = null;
+  let driveSilentAttempt = false;
+  const DRIVE_SIGNED_IN_BEFORE_KEY = 'driveEverSignedIn';
+
+  function setSyncStatus(text) {
+    syncStatus.textContent = text;
+  }
+
+  function updateSyncUI(signedIn) {
+    googleSignInBtn.style.display = signedIn ? 'none' : 'inline-block';
+    googleSignOutBtn.style.display = signedIn ? 'inline-block' : 'none';
+    if (!signedIn) setSyncStatus('未同期（この端末のみ）');
+  }
+
+  function initGoogleAuth() {
+    if (!GOOGLE_SYNC_ENABLED) {
+      setSyncStatus('Drive同期は未設定です');
+      googleSignInBtn.disabled = true;
+      return;
+    }
+    if (typeof google === 'undefined' || !google.accounts) {
+      setTimeout(initGoogleAuth, 300);
+      return;
+    }
+    driveTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: async (tokenResponse) => {
+        if (tokenResponse.error) {
+          if (!driveSilentAttempt) {
+            setSyncStatus('ログインに失敗しました');
+          }
+          driveSilentAttempt = false;
+          return;
+        }
+        driveSilentAttempt = false;
+        driveAccessToken = tokenResponse.access_token;
+        localStorage.setItem(DRIVE_SIGNED_IN_BEFORE_KEY, 'true');
+        updateSyncUI(true);
+        setSyncStatus('同期中…');
+        await loadFromDrive();
+      }
+    });
+
+    if (localStorage.getItem(DRIVE_SIGNED_IN_BEFORE_KEY) === 'true') {
+      driveSilentAttempt = true;
+      driveTokenClient.requestAccessToken({ prompt: '' });
+    }
+  }
+
+  async function findDriveFile() {
+    const query = `name='${DRIVE_FILE_NAME}' and trashed=false`;
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&spaces=drive&fields=files(id,name)`,
+      { headers: { Authorization: `Bearer ${driveAccessToken}` } }
+    );
+    const data = await res.json();
+    return (data.files && data.files[0]) ? data.files[0].id : null;
+  }
+
+  async function createDriveFile(initialData) {
+    const metadata = { name: DRIVE_FILE_NAME, mimeType: 'application/json' };
+    const boundary = 'relmgr-boundary-314159265';
+    const delimiter = `\r\n--${boundary}\r\n`;
+    const closeDelim = `\r\n--${boundary}--`;
+    const body =
+      delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) +
+      delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(initialData) +
+      closeDelim;
+    const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${driveAccessToken}`,
+        'Content-Type': `multipart/related; boundary=${boundary}`
+      },
+      body
+    });
+    const data = await res.json();
+    return data.id;
+  }
+
+  async function loadFromDrive() {
+    try {
+      let fileId = await findDriveFile();
+      if (!fileId) {
+        fileId = await createDriveFile(people);
+      }
+      driveFileId = fileId;
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+        headers: { Authorization: `Bearer ${driveAccessToken}` }
+      });
+      const remoteData = await res.json();
+      if (Array.isArray(remoteData) && remoteData.length > 0) {
+        remoteData.forEach(ensurePersonDefaults);
+        people = remoteData;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
+        render();
+      }
+      setSyncStatus(`同期済み（${new Date().toLocaleTimeString('ja-JP')}）`);
+    } catch (err) {
+      console.error(err);
+      setSyncStatus('同期エラー');
+    }
+  }
+
+  async function pushToDrive() {
+    if (!driveAccessToken || !driveFileId) return;
+    try {
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${driveAccessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(people)
+      });
+      setSyncStatus(`同期済み（${new Date().toLocaleTimeString('ja-JP')}）`);
+    } catch (err) {
+      console.error(err);
+      setSyncStatus('同期エラー');
+    }
+  }
+
+  function schedulePushToDrive() {
+    if (!driveAccessToken || !driveFileId) return;
+    clearTimeout(drivePushTimer);
+    setSyncStatus('同期中…');
+    drivePushTimer = setTimeout(pushToDrive, 800);
+  }
+
+  googleSignInBtn.addEventListener('click', () => {
+    if (!GOOGLE_SYNC_ENABLED) {
+      alert('Google Drive同期を使うには、コード内のGOOGLE_CLIENT_IDを設定する必要があります。');
+      return;
+    }
+    if (!driveTokenClient) {
+      alert('Google認証の準備中です。少し待ってから再度お試しください。');
+      return;
+    }
+    driveTokenClient.requestAccessToken();
+  });
+
+  googleSignOutBtn.addEventListener('click', () => {
+    if (driveAccessToken && google.accounts && google.accounts.oauth2) {
+      google.accounts.oauth2.revoke(driveAccessToken, () => {});
+    }
+    driveAccessToken = null;
+    driveFileId = null;
+    localStorage.removeItem(DRIVE_SIGNED_IN_BEFORE_KEY);
+    updateSyncUI(false);
+  });
+
+  initGoogleAuth();
+
+  function calcAge(birthdate) {
+    if (!birthdate) return null;
+    const b = new Date(birthdate);
+    if (isNaN(b)) return null;
+    const now = new Date();
+    let age = now.getFullYear() - b.getFullYear();
+    const m = now.getMonth() - b.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+    return age;
+  }
+
+  function formatBirthdate(birthdate) {
+    if (!birthdate) return '';
+    const [y, m, d] = birthdate.split('-');
+    return `${y}年${m}月${d}日`;
+  }
+
+  function kataToHira(str) {
+    return str.replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+  }
+
+  function normalizeForSearch(str) {
+    return kataToHira(str || '').toLowerCase();
+  }
+
+  function splitResidence(residence) {
+    if (!residence) return { pref: '', city: '' };
+    const pref = PREFECTURES.find(p => residence.startsWith(p));
+    if (!pref) return { pref: '', city: '' };
+    return { pref, city: residence.slice(pref.length) };
+  }
+
+  function setupAutocomplete(inputEl, listEl, getOptions, onSelect) {
+    let currentOptions = [];
+    let activeIndex = -1;
+
+    function renderList() {
+      const q = normalizeForSearch(inputEl.value);
+      currentOptions = getOptions().filter(opt => {
+        if (!q) return true;
+        return normalizeForSearch(opt.n).includes(q) || normalizeForSearch(opt.k).includes(q);
+      }).slice(0, 30);
+      activeIndex = -1;
+
+      listEl.innerHTML = '';
+      if (currentOptions.length === 0) {
+        listEl.innerHTML = '<div class="autocomplete-empty">該当なし</div>';
+      } else {
+        currentOptions.forEach(opt => {
+          const item = document.createElement('div');
+          item.className = 'autocomplete-item';
+          item.textContent = opt.n;
+          item.addEventListener('mousedown', e => {
+            e.preventDefault();
+            selectOption(opt);
+          });
+          listEl.appendChild(item);
+        });
+      }
+      listEl.classList.add('open');
+    }
+
+    function selectOption(opt) {
+      inputEl.value = opt.n;
+      listEl.classList.remove('open');
+      if (onSelect) onSelect(opt);
+    }
+
+    function updateActive() {
+      const items = listEl.querySelectorAll('.autocomplete-item');
+      items.forEach((el, idx) => el.classList.toggle('active', idx === activeIndex));
+      if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+    }
+
+    inputEl.addEventListener('focus', renderList);
+    inputEl.addEventListener('input', renderList);
+    inputEl.addEventListener('blur', () => {
+      setTimeout(() => listEl.classList.remove('open'), 150);
+    });
+    inputEl.addEventListener('keydown', e => {
+      if (!listEl.classList.contains('open')) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, currentOptions.length - 1);
+        updateActive();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        updateActive();
+      } else if (e.key === 'Enter') {
+        if (activeIndex >= 0 && currentOptions[activeIndex]) {
+          e.preventDefault();
+          selectOption(currentOptions[activeIndex]);
+        }
+      } else if (e.key === 'Escape') {
+        listEl.classList.remove('open');
+      }
+    });
+  }
+
+  setupAutocomplete(hometownInput, document.getElementById('hometownList'), () => PREFECTURE_LIST);
+  setupAutocomplete(residencePrefInput, document.getElementById('residencePrefList'), () => PREFECTURE_LIST, () => {
+    residenceCityInput.value = '';
+  });
+  setupAutocomplete(residenceCityInput, document.getElementById('residenceCityList'), () => CITY_MAP[residencePrefInput.value] || []);
+
+  const GROUP_ORDER = ['家族', '親戚', '友人', '仕事関係', 'その他'];
+  const UNGROUPED_LABEL = '未分類';
+
+  function buildCard(p) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.addEventListener('click', () => openDetail(p.id));
+
+    const photoHtml = p.photo
+      ? `<img class="avatar" src="${p.photo}">`
+      : `<div class="avatar-placeholder">👤</div>`;
+
+    const age = calcAge(p.birthdate);
+    const metaParts = [];
+    if (p.birthdate) metaParts.push(formatBirthdate(p.birthdate) + (age !== null ? `（${age}歳）` : ''));
+
+    card.innerHTML = `
+      ${photoHtml}
+      <div class="name">${escapeHtml(p.name)}</div>
+      ${metaParts.length ? `<div class="meta">${escapeHtml(metaParts.join(' '))}</div>` : ''}
+    `;
+    return card;
+  }
+
+  function render() {
+    const query = searchInput.value.trim().toLowerCase();
+    const filtered = people.filter(p => p.name.toLowerCase().includes(query));
+
+    grid.innerHTML = '';
+    emptyState.style.display = (people.length === 0) ? 'block' : 'none';
+
+    const groups = new Map();
+    filtered.forEach(p => {
+      const key = (p.group || '').trim() || UNGROUPED_LABEL;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(p);
+    });
+
+    const groupNames = Array.from(groups.keys()).sort((a, b) => {
+      if (a === UNGROUPED_LABEL) return 1;
+      if (b === UNGROUPED_LABEL) return -1;
+      const ai = GROUP_ORDER.indexOf(a);
+      const bi = GROUP_ORDER.indexOf(b);
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return a.localeCompare(b, 'ja');
+    });
+
+    groupNames.forEach(groupName => {
+      const members = groups.get(groupName)
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+
+      const section = document.createElement('div');
+      section.className = 'group-section';
+
+      const heading = document.createElement('div');
+      heading.className = 'group-heading';
+      heading.innerHTML = `<span>${escapeHtml(groupName)}</span><span class="group-count">${members.length}人</span>`;
+      section.appendChild(heading);
+
+      const groupGrid = document.createElement('div');
+      groupGrid.className = 'grid';
+      members.forEach(p => groupGrid.appendChild(buildCard(p)));
+      section.appendChild(groupGrid);
+
+      grid.appendChild(section);
+    });
+
+    renderEvents();
+  }
+
+  const MILESTONE_NAMES = {
+    60: '還暦', 70: '古希', 77: '喜寿', 80: '傘寿',
+    88: '米寿', 90: '卒寿', 99: '白寿', 100: '百寿'
+  };
+  const EVENT_WINDOW_DAYS = 30;
+
+  function getUpcomingBirthday(birthdate, today) {
+    if (!birthdate) return null;
+    const b = new Date(birthdate);
+    if (isNaN(b)) return null;
+    const todayStripped = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    let next = new Date(todayStripped.getFullYear(), b.getMonth(), b.getDate());
+    if (next < todayStripped) {
+      next = new Date(todayStripped.getFullYear() + 1, b.getMonth(), b.getDate());
+    }
+    const daysUntil = Math.round((next - todayStripped) / 86400000);
+    const turningAge = next.getFullYear() - b.getFullYear();
+    return { daysUntil, turningAge };
+  }
+
+  function renderEvents() {
+    const today = new Date();
+    const events = people
+      .map(p => {
+        const info = getUpcomingBirthday(p.birthdate, today);
+        return info ? { person: p, daysUntil: info.daysUntil, turningAge: info.turningAge } : null;
+      })
+      .filter(e => e && e.daysUntil <= EVENT_WINDOW_DAYS)
+      .sort((a, b) => a.daysUntil - b.daysUntil);
+
+    eventsList.innerHTML = '';
+    eventsSection.style.display = events.length ? 'block' : 'none';
+
+    events.forEach(e => {
+      const p = e.person;
+      const card = document.createElement('div');
+      card.className = 'event-card';
+      card.addEventListener('click', () => openDetail(p.id));
+
+      const photoHtml = p.photo
+        ? `<img class="avatar" src="${p.photo}">`
+        : `<div class="avatar-placeholder">👤</div>`;
+
+      const whenLabel = e.daysUntil === 0 ? '今日' : `あと${e.daysUntil}日`;
+      const milestone = MILESTONE_NAMES[e.turningAge];
+
+      card.innerHTML = `
+        ${photoHtml}
+        <div class="name">${escapeHtml(p.name)}</div>
+        <div class="event-when">${whenLabel}</div>
+        <div class="event-age">${e.turningAge}歳${milestone ? `・${milestone}` : 'の誕生日'}</div>
+      `;
+      eventsList.appendChild(card);
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function openAdd() {
+    editingId = null;
+    pendingPhoto = null;
+    modalTitle.textContent = '新しく追加';
+    deleteBtn.style.display = 'none';
+    form.reset();
+    photoPreview.style.display = 'none';
+    photoPlaceholder.style.display = 'flex';
+    overlay.classList.add('open');
+    nameInput.focus();
+  }
+
+  function openEdit(id) {
+    const p = people.find(x => x.id === id);
+    if (!p) return;
+    editingId = id;
+    pendingPhoto = p.photo || null;
+    modalTitle.textContent = `${p.name} を編集`;
+    deleteBtn.style.display = 'inline-block';
+    nameInput.value = p.name;
+    birthdateInput.value = p.birthdate || '';
+    groupInput.value = p.group || '';
+    hometownInput.value = p.hometown || '';
+    const residenceSplit = splitResidence(p.residence);
+    residencePrefInput.value = residenceSplit.pref;
+    residenceCityInput.value = residenceSplit.city;
+    highSchoolInput.value = p.highSchool || '';
+    universityInput.value = p.university || '';
+    bestMemoryInput.value = p.bestMemory || '';
+    memoInput.value = p.memo || '';
+    if (p.photo) {
+      photoPreview.src = p.photo;
+      photoPreview.style.display = 'block';
+      photoPlaceholder.style.display = 'none';
+    } else {
+      photoPreview.style.display = 'none';
+      photoPlaceholder.style.display = 'flex';
+    }
+    overlay.classList.add('open');
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    editingId = null;
+    pendingPhoto = null;
+  }
+
+  function resizeImage(file, callback) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > MAX_PHOTO_DIM) {
+          height = Math.round(height * (MAX_PHOTO_DIM / width));
+          width = MAX_PHOTO_DIM;
+        } else if (height > MAX_PHOTO_DIM) {
+          width = Math.round(width * (MAX_PHOTO_DIM / height));
+          height = MAX_PHOTO_DIM;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        callback(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById('addBtn').addEventListener('click', openAdd);
+  document.getElementById('photoPickBtn').addEventListener('click', () => photoInput.click());
+  document.getElementById('photoPreviewWrap').addEventListener('click', () => photoInput.click());
+
+  const importFileInput = document.getElementById('importFileInput');
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const dataStr = JSON.stringify(people, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const stamp = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `people-backup-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('importBtn').addEventListener('click', () => importFileInput.click());
+
+  importFileInput.addEventListener('change', () => {
+    const file = importFileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const imported = JSON.parse(e.target.result);
+        if (!Array.isArray(imported)) throw new Error('invalid format');
+        const ok = confirm(`${imported.length}件のデータを読み込みます。現在のこの端末のデータ（${people.length}件）は置き換えられます。よろしいですか？`);
+        if (!ok) return;
+        imported.forEach(ensurePersonDefaults);
+        people = imported;
+        savePeople();
+        render();
+        alert('読み込みが完了しました。');
+      } catch (err) {
+        alert('ファイルの読み込みに失敗しました。書き出したJSONファイルを選択しているか確認してください。');
+      } finally {
+        importFileInput.value = '';
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  function openDeviationSearch(nameInputEl) {
+    const schoolName = nameInputEl.value.trim();
+    if (!schoolName) {
+      nameInputEl.focus();
+      return;
+    }
+    const url = 'https://www.google.com/search?q=' + encodeURIComponent(schoolName + ' 偏差値');
+    window.open(url, '_blank', 'noopener');
+  }
+
+  highSchoolSearchBtn.addEventListener('click', () => openDeviationSearch(highSchoolInput));
+  universitySearchBtn.addEventListener('click', () => openDeviationSearch(universityInput));
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal();
+  });
+
+  photoInput.addEventListener('change', () => {
+    const file = photoInput.files[0];
+    if (!file) return;
+    resizeImage(file, dataUrl => {
+      pendingPhoto = dataUrl;
+      photoPreview.src = dataUrl;
+      photoPreview.style.display = 'block';
+      photoPlaceholder.style.display = 'none';
+    });
+  });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    if (!name) return;
+    const residence = residencePrefInput.value ? (residencePrefInput.value + residenceCityInput.value) : '';
+
+    if (editingId) {
+      const p = people.find(x => x.id === editingId);
+      p.name = name;
+      p.birthdate = birthdateInput.value;
+      p.group = groupInput.value.trim();
+      p.hometown = hometownInput.value.trim();
+      p.residence = residence;
+      p.highSchool = highSchoolInput.value.trim();
+      p.university = universityInput.value.trim();
+      p.bestMemory = bestMemoryInput.value.trim();
+      p.memo = memoInput.value.trim();
+      p.photo = pendingPhoto;
+    } else {
+      people.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        name,
+        birthdate: birthdateInput.value,
+        group: groupInput.value.trim(),
+        family: '',
+        hometown: hometownInput.value.trim(),
+        residence: residence,
+        highSchool: highSchoolInput.value.trim(),
+        university: universityInput.value.trim(),
+        bestMemory: bestMemoryInput.value.trim(),
+        memo: memoInput.value.trim(),
+        photo: pendingPhoto,
+        likes: [],
+        photos: []
+      });
+    }
+
+    const wasEditingId = editingId;
+    savePeople();
+    render();
+    closeModal();
+    if (returnToDetailAfterEdit && wasEditingId) {
+      openDetail(wasEditingId);
+    }
+    returnToDetailAfterEdit = false;
+  });
+
+  document.getElementById('cancelBtn').addEventListener('click', () => {
+    const wasEditingId = editingId;
+    closeModal();
+    if (returnToDetailAfterEdit && wasEditingId) {
+      openDetail(wasEditingId);
+    }
+    returnToDetailAfterEdit = false;
+  });
+
+  deleteBtn.addEventListener('click', () => {
+    if (!editingId) return;
+    if (!confirm('この人物を削除しますか？')) return;
+    people = people.filter(p => p.id !== editingId);
+    savePeople();
+    render();
+    closeModal();
+    returnToDetailAfterEdit = false;
+  });
+
+  searchInput.addEventListener('input', render);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (overlay.classList.contains('open')) closeModal();
+      if (detailOverlay.classList.contains('open')) closeDetail();
+    }
+  });
+
+  // --- Detail page ---
+
+  function openDetail(id) {
+    const p = people.find(x => x.id === id);
+    if (!p) return;
+    ensurePersonDefaults(p);
+    detailId = id;
+    renderDetail();
+    detailOverlay.classList.add('open');
+  }
+
+  function closeDetail() {
+    detailOverlay.classList.remove('open');
+    detailId = null;
+  }
+
+  function renderDetail() {
+    const p = people.find(x => x.id === detailId);
+    if (!p) { closeDetail(); return; }
+    ensurePersonDefaults(p);
+
+    detailPhotoWrap.innerHTML = p.photo
+      ? `<img class="avatar" src="${p.photo}">`
+      : `<div class="avatar-placeholder">👤</div>`;
+
+    detailName.textContent = p.name;
+    if (p.group) {
+      detailGroupTag.textContent = p.group;
+      detailGroupTag.style.display = 'inline-block';
+    } else {
+      detailGroupTag.style.display = 'none';
+    }
+
+    const age = calcAge(p.birthdate);
+    detailGroupText.textContent = p.group || '未設定';
+    detailBirthdate.textContent = p.birthdate
+      ? formatBirthdate(p.birthdate) + (age !== null ? `（${age}歳）` : '')
+      : '未設定';
+    detailHometown.textContent = p.hometown || '未設定';
+    detailResidence.textContent = p.residence || '未設定';
+    detailHighSchool.textContent = p.highSchool || '未設定';
+    detailUniversity.textContent = p.university || '未設定';
+    detailBestMemory.textContent = p.bestMemory || '未設定';
+    detailFamilyInput.value = p.family || '';
+    detailMemo.textContent = p.memo || '未設定';
+
+    likesChips.innerHTML = '';
+    if (p.likes.length === 0) {
+      likesChips.innerHTML = '<div class="chips-empty">まだ登録されていません</div>';
+    } else {
+      p.likes.forEach((like, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        const span = document.createElement('span');
+        span.textContent = like;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('aria-label', '削除');
+        btn.textContent = '×';
+        btn.addEventListener('click', () => {
+          p.likes.splice(idx, 1);
+          savePeople();
+          renderDetail();
+        });
+        chip.appendChild(span);
+        chip.appendChild(btn);
+        likesChips.appendChild(chip);
+      });
+    }
+
+    photoGrid.innerHTML = '';
+    p.photos.forEach((photo, idx) => {
+      const img = document.createElement('img');
+      img.src = photo;
+      img.addEventListener('click', () => {
+        if (confirm('この写真を削除しますか？')) {
+          p.photos.splice(idx, 1);
+          savePeople();
+          renderDetail();
+        }
+      });
+      photoGrid.appendChild(img);
+    });
+  }
+
+  function addLikeHandler() {
+    const val = likeInput.value.trim();
+    if (!val || !detailId) return;
+    const p = people.find(x => x.id === detailId);
+    if (!p) return;
+    ensurePersonDefaults(p);
+    p.likes.push(val);
+    likeInput.value = '';
+    savePeople();
+    renderDetail();
+  }
+
+  detailCloseBtn.addEventListener('click', closeDetail);
+  detailOverlay.addEventListener('click', e => {
+    if (e.target === detailOverlay) closeDetail();
+  });
+
+  detailEditBtn.addEventListener('click', () => {
+    const id = detailId;
+    returnToDetailAfterEdit = true;
+    closeDetail();
+    openEdit(id);
+  });
+
+  detailDeleteBtn.addEventListener('click', () => {
+    if (!detailId) return;
+    if (!confirm('この人物を削除しますか？')) return;
+    people = people.filter(p => p.id !== detailId);
+    savePeople();
+    render();
+    closeDetail();
+  });
+
+  addLikeBtn.addEventListener('click', addLikeHandler);
+  likeInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addLikeHandler();
+    }
+  });
+
+  detailFamilyInput.addEventListener('input', () => {
+    if (!detailId) return;
+    const p = people.find(x => x.id === detailId);
+    if (!p) return;
+    p.family = detailFamilyInput.value;
+    savePeople();
+  });
+
+  detailFamilyInput.addEventListener('blur', () => {
+    if (!detailId) return;
+    const p = people.find(x => x.id === detailId);
+    if (!p) return;
+    p.family = detailFamilyInput.value.trim();
+    detailFamilyInput.value = p.family;
+    savePeople();
+  });
+
+  addPhotoBtn.addEventListener('click', () => galleryInput.click());
+  galleryInput.addEventListener('change', () => {
+    const files = Array.from(galleryInput.files);
+    if (!files.length || !detailId) return;
+    const p = people.find(x => x.id === detailId);
+    if (!p) return;
+    ensurePersonDefaults(p);
+    let remaining = files.length;
+    files.forEach(file => {
+      resizeImage(file, dataUrl => {
+        p.photos.push(dataUrl);
+        remaining--;
+        if (remaining === 0) {
+          savePeople();
+          renderDetail();
+        }
+      });
+    });
+    galleryInput.value = '';
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
