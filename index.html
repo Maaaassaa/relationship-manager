@@ -728,6 +728,8 @@
   let driveFileId = null;
   let driveTokenClient = null;
   let drivePushTimer = null;
+  let driveSilentAttempt = false;
+  const DRIVE_SIGNED_IN_BEFORE_KEY = 'driveEverSignedIn';
 
   function setSyncStatus(text) {
     syncStatus.textContent = text;
@@ -754,15 +756,25 @@
       scope: 'https://www.googleapis.com/auth/drive.file',
       callback: async (tokenResponse) => {
         if (tokenResponse.error) {
-          setSyncStatus('ログインに失敗しました');
+          if (!driveSilentAttempt) {
+            setSyncStatus('ログインに失敗しました');
+          }
+          driveSilentAttempt = false;
           return;
         }
+        driveSilentAttempt = false;
         driveAccessToken = tokenResponse.access_token;
+        localStorage.setItem(DRIVE_SIGNED_IN_BEFORE_KEY, 'true');
         updateSyncUI(true);
         setSyncStatus('同期中…');
         await loadFromDrive();
       }
     });
+
+    if (localStorage.getItem(DRIVE_SIGNED_IN_BEFORE_KEY) === 'true') {
+      driveSilentAttempt = true;
+      driveTokenClient.requestAccessToken({ prompt: '' });
+    }
   }
 
   async function findDriveFile() {
@@ -863,6 +875,7 @@
     }
     driveAccessToken = null;
     driveFileId = null;
+    localStorage.removeItem(DRIVE_SIGNED_IN_BEFORE_KEY);
     updateSyncUI(false);
   });
 
