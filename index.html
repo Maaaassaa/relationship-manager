@@ -304,6 +304,7 @@
   .two-col { display: flex; gap: 8px; }
   .autocomplete { position: relative; width: 100%; }
   .two-col .autocomplete { flex: 1; min-width: 0; }
+  .two-col > input { flex: 1; min-width: 0; width: auto; }
   .autocomplete-list {
     display: none;
     position: absolute;
@@ -426,6 +427,59 @@
     padding: 2px;
   }
   .chips-empty { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; }
+  .timeline-empty { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; }
+  .timeline { margin-bottom: 10px; }
+  .timeline-item {
+    position: relative;
+    padding-left: 24px;
+    padding-bottom: 18px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 15px;
+    bottom: -3px;
+    width: 1px;
+    background: var(--border);
+  }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-item:last-child::before { display: none; }
+  .timeline-dot {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--card-bg);
+  }
+  .timeline-year {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 12.5px;
+    letter-spacing: 0.03em;
+    margin-bottom: 2px;
+  }
+  .timeline-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 14px;
+  }
+  .timeline-title-row button {
+    border: none;
+    background: none;
+    color: var(--text-sub);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 2px;
+    flex-shrink: 0;
+  }
   .detail-textarea {
     width: 100%;
     padding: 10px 12px;
@@ -650,6 +704,20 @@
     </div>
 
     <div class="detail-section">
+      <h3>年表</h3>
+      <div class="timeline" id="timelineList"></div>
+      <div class="timeline-empty" id="timelineEmpty" style="display:none;">まだ登録されていません</div>
+      <div class="add-row">
+        <div class="two-col">
+          <input type="number" id="timelineYearInput" placeholder="年（例：2000）">
+          <input type="text" id="timelineDetailInput" placeholder="月など（任意）">
+        </div>
+        <input type="text" id="timelineTitleInput" placeholder="できごと（例：結婚）">
+        <button type="button" class="btn btn-ghost" id="addTimelineBtn">追加</button>
+      </div>
+    </div>
+
+    <div class="detail-section">
       <h3>写真</h3>
       <div class="photo-grid" id="photoGrid"></div>
       <input type="file" id="galleryInput" accept="image/*" multiple>
@@ -731,6 +799,12 @@
   const photoGrid = document.getElementById('photoGrid');
   const galleryInput = document.getElementById('galleryInput');
   const addPhotoBtn = document.getElementById('addPhotoBtn');
+  const timelineList = document.getElementById('timelineList');
+  const timelineEmpty = document.getElementById('timelineEmpty');
+  const timelineYearInput = document.getElementById('timelineYearInput');
+  const timelineDetailInput = document.getElementById('timelineDetailInput');
+  const timelineTitleInput = document.getElementById('timelineTitleInput');
+  const addTimelineBtn = document.getElementById('addTimelineBtn');
   const detailEditBtn = document.getElementById('detailEditBtn');
   const detailCloseBtn = document.getElementById('detailCloseBtn');
   const detailDeleteBtn = document.getElementById('detailDeleteBtn');
@@ -769,6 +843,7 @@
   function ensurePersonDefaults(p) {
     if (!Array.isArray(p.likes)) p.likes = [];
     if (!Array.isArray(p.photos)) p.photos = [];
+    if (!Array.isArray(p.timeline)) p.timeline = [];
     if (typeof p.group !== 'string') p.group = '';
     if (typeof p.family !== 'string') p.family = (typeof p.relation === 'string') ? p.relation : '';
     if (typeof p.hometown !== 'string') p.hometown = '';
@@ -1514,6 +1589,45 @@
       });
       photoGrid.appendChild(img);
     });
+
+    const sortedTimeline = p.timeline
+      .map((entry, idx) => ({ entry, idx }))
+      .sort((a, b) => a.entry.year - b.entry.year);
+
+    timelineList.innerHTML = '';
+    timelineEmpty.style.display = p.timeline.length === 0 ? 'block' : 'none';
+    sortedTimeline.forEach(({ entry, idx }) => {
+      const item = document.createElement('div');
+      item.className = 'timeline-item';
+
+      const dot = document.createElement('div');
+      dot.className = 'timeline-dot';
+
+      const yearLine = document.createElement('div');
+      yearLine.className = 'timeline-year';
+      yearLine.textContent = entry.year + '年' + (entry.detail ? ' ' + entry.detail : '');
+
+      const titleRow = document.createElement('div');
+      titleRow.className = 'timeline-title-row';
+      const titleSpan = document.createElement('span');
+      titleSpan.textContent = entry.title;
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.setAttribute('aria-label', '削除');
+      removeBtn.textContent = '×';
+      removeBtn.addEventListener('click', () => {
+        p.timeline.splice(idx, 1);
+        savePeople();
+        renderDetail();
+      });
+      titleRow.appendChild(titleSpan);
+      titleRow.appendChild(removeBtn);
+
+      item.appendChild(dot);
+      item.appendChild(yearLine);
+      item.appendChild(titleRow);
+      timelineList.appendChild(item);
+    });
   }
 
   function addLikeHandler() {
@@ -1524,6 +1638,26 @@
     ensurePersonDefaults(p);
     p.likes.push(val);
     likeInput.value = '';
+    savePeople();
+    renderDetail();
+  }
+
+  function addTimelineHandler() {
+    const year = parseInt(timelineYearInput.value, 10);
+    const title = timelineTitleInput.value.trim();
+    if (!year || !title || !detailId) return;
+    const p = people.find(x => x.id === detailId);
+    if (!p) return;
+    ensurePersonDefaults(p);
+    p.timeline.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      year,
+      detail: timelineDetailInput.value.trim(),
+      title
+    });
+    timelineYearInput.value = '';
+    timelineDetailInput.value = '';
+    timelineTitleInput.value = '';
     savePeople();
     renderDetail();
   }
@@ -1555,6 +1689,14 @@
     if (e.key === 'Enter') {
       e.preventDefault();
       addLikeHandler();
+    }
+  });
+
+  addTimelineBtn.addEventListener('click', addTimelineHandler);
+  timelineTitleInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTimelineHandler();
     }
   });
 
