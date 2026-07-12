@@ -992,6 +992,7 @@
     if (typeof p.bestMemory !== 'string') p.bestMemory = '';
     if (typeof p.birthOrder !== 'string') p.birthOrder = '';
     if (!Array.isArray(p.siblings)) p.siblings = [];
+    if (typeof p.updatedAt !== 'number') p.updatedAt = 0;
     return p;
   }
 
@@ -1089,7 +1090,12 @@
   function mergePeopleData(localList, remoteList, mergedDeletedIds) {
     const merged = new Map();
     remoteList.forEach(p => merged.set(p.id, p));
-    localList.forEach(p => merged.set(p.id, p));
+    localList.forEach(p => {
+      const existing = merged.get(p.id);
+      if (!existing || (p.updatedAt || 0) >= (existing.updatedAt || 0)) {
+        merged.set(p.id, p);
+      }
+    });
     mergedDeletedIds.forEach(id => merged.delete(id));
     return Array.from(merged.values());
   }
@@ -1123,7 +1129,15 @@
       saveDeletedIds();
       render();
 
-      const remoteUpToDate = remotePeople.length === merged.length && remoteDeletedIds.length === mergedDeletedIds.size;
+      const remoteDeletedIdsSet = new Set(remoteDeletedIds);
+      const deletedIdsUpToDate = mergedDeletedIds.size === remoteDeletedIdsSet.size &&
+        Array.from(mergedDeletedIds).every(id => remoteDeletedIdsSet.has(id));
+      const peopleUpToDate = merged.length === remotePeople.length &&
+        merged.every(p => {
+          const r = remotePeople.find(x => x.id === p.id);
+          return r && JSON.stringify(r) === JSON.stringify(p);
+        });
+      const remoteUpToDate = peopleUpToDate && deletedIdsUpToDate;
       if (!remoteUpToDate) {
         await pushToDrive();
       } else {
@@ -1531,6 +1545,7 @@
         const ok = confirm(`${imported.length}件のデータを読み込みます。現在のこの端末のデータ（${people.length}件）は置き換えられます。よろしいですか？`);
         if (!ok) return;
         imported.forEach(ensurePersonDefaults);
+        imported.forEach(p => { p.updatedAt = Date.now(); });
         people = imported;
         savePeople();
         render();
@@ -1591,6 +1606,7 @@
       p.bestMemory = bestMemoryInput.value.trim();
       p.memo = memoInput.value.trim();
       p.photo = pendingPhoto;
+      p.updatedAt = Date.now();
     } else {
       people.push({
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
@@ -1609,7 +1625,8 @@
         likes: [],
         photos: [],
         birthOrder: '',
-        siblings: []
+        siblings: [],
+        updatedAt: Date.now()
       });
     }
 
@@ -1721,6 +1738,7 @@
         btn.textContent = '×';
         btn.addEventListener('click', () => {
           p.siblings.splice(idx, 1);
+          p.updatedAt = Date.now();
           savePeople();
           renderDetail();
         });
@@ -1745,6 +1763,7 @@
         btn.textContent = '×';
         btn.addEventListener('click', () => {
           p.likes.splice(idx, 1);
+          p.updatedAt = Date.now();
           savePeople();
           renderDetail();
         });
@@ -1772,6 +1791,7 @@
         e.stopPropagation();
         if (confirm('この写真を削除しますか？')) {
           p.photos.splice(idx, 1);
+          p.updatedAt = Date.now();
           savePeople();
           renderDetail();
         }
@@ -1816,6 +1836,7 @@
       removeBtn.textContent = '×';
       removeBtn.addEventListener('click', () => {
         p.timeline.splice(idx, 1);
+        p.updatedAt = Date.now();
         savePeople();
         renderDetail();
       });
@@ -1835,6 +1856,7 @@
     if (!p) return;
     ensurePersonDefaults(p);
     p.likes.push(val);
+    p.updatedAt = Date.now();
     likeInput.value = '';
     savePeople();
     renderDetail();
@@ -1854,6 +1876,7 @@
       day: timelineDayInput.value.trim(),
       title
     });
+    p.updatedAt = Date.now();
     timelineYearInput.value = '';
     timelineDetailInput.value = '';
     timelineDayInput.value = '';
@@ -1958,6 +1981,7 @@
     const p = people.find(x => x.id === detailId);
     if (!p) return;
     p.family = detailFamilyInput.value;
+    p.updatedAt = Date.now();
     savePeople();
   });
 
@@ -1967,6 +1991,7 @@
     if (!p) return;
     p.family = detailFamilyInput.value.trim();
     detailFamilyInput.value = p.family;
+    p.updatedAt = Date.now();
     savePeople();
   });
 
@@ -1975,6 +2000,7 @@
     const p = people.find(x => x.id === detailId);
     if (!p) return;
     p.birthOrder = detailBirthOrderInput.value;
+    p.updatedAt = Date.now();
     savePeople();
   });
 
@@ -1987,6 +2013,7 @@
       type: siblingTypeInput.value,
       diff: siblingDiffInput.value.trim()
     });
+    p.updatedAt = Date.now();
     siblingDiffInput.value = '';
     savePeople();
     renderDetail();
@@ -2020,6 +2047,7 @@
         p.photos.push(dataUrl);
         remaining--;
         if (remaining === 0) {
+          p.updatedAt = Date.now();
           savePeople();
           renderDetail();
         }
