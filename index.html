@@ -1152,6 +1152,25 @@
   async function pushToDrive() {
     if (!driveAccessToken || !driveFileId) return;
     try {
+      // 上書き事故を防ぐため、送信前に必ず最新のドライブの中身を取得してから合流させる
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`, {
+        headers: { Authorization: `Bearer ${driveAccessToken}` }
+      });
+      const remoteRaw = await res.json();
+      const remotePayload = Array.isArray(remoteRaw) ? { people: remoteRaw, deletedIds: [] } : (remoteRaw || {});
+      const remotePeople = Array.isArray(remotePayload.people) ? remotePayload.people : [];
+      const remoteDeletedIds = Array.isArray(remotePayload.deletedIds) ? remotePayload.deletedIds : [];
+      remotePeople.forEach(ensurePersonDefaults);
+
+      const mergedDeletedIds = new Set([...deletedIds, ...remoteDeletedIds]);
+      const merged = mergePeopleData(people, remotePeople, mergedDeletedIds);
+
+      people = merged;
+      deletedIds = mergedDeletedIds;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
+      saveDeletedIds();
+      render();
+
       await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
         method: 'PATCH',
         headers: {
