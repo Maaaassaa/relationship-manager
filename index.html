@@ -727,6 +727,7 @@
         <div class="two-col">
           <input type="number" id="timelineYearInput" placeholder="年（例：2000）">
           <input type="number" id="timelineDetailInput" placeholder="月（任意）" min="1" max="12">
+          <input type="number" id="timelineDayInput" placeholder="日（任意）" min="1" max="31">
         </div>
         <input type="text" id="timelineTitleInput" placeholder="できごと（例：結婚）">
         <button type="button" class="btn btn-ghost" id="addTimelineBtn">追加</button>
@@ -849,6 +850,7 @@
   const timelineScrollbarThumb = document.getElementById('timelineScrollbarThumb');
   const timelineYearInput = document.getElementById('timelineYearInput');
   const timelineDetailInput = document.getElementById('timelineDetailInput');
+  const timelineDayInput = document.getElementById('timelineDayInput');
   const timelineTitleInput = document.getElementById('timelineTitleInput');
   const addTimelineBtn = document.getElementById('addTimelineBtn');
   const detailEditBtn = document.getElementById('detailEditBtn');
@@ -1638,7 +1640,7 @@
 
     const sortedTimeline = p.timeline
       .map((entry, idx) => ({ entry, idx }))
-      .sort((a, b) => a.entry.year - b.entry.year);
+      .sort((a, b) => a.entry.year - b.entry.year || (parseInt(a.entry.detail, 10) || 0) - (parseInt(b.entry.detail, 10) || 0) || (parseInt(a.entry.day, 10) || 0) - (parseInt(b.entry.day, 10) || 0));
 
     timelineList.innerHTML = '';
     timelineEmpty.style.display = p.timeline.length === 0 ? 'block' : 'none';
@@ -1654,7 +1656,7 @@
 
       const yearSpan = document.createElement('span');
       yearSpan.className = 'timeline-year';
-      yearSpan.textContent = entry.year + '年' + (entry.detail ? entry.detail + '月' : '');
+      yearSpan.textContent = entry.year + '年' + (entry.detail ? entry.detail + '月' : '') + (entry.day ? entry.day + '日' : '');
 
       const titleSpan = document.createElement('span');
       titleSpan.className = 'timeline-title';
@@ -1705,10 +1707,12 @@
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
       year,
       detail: timelineDetailInput.value.trim(),
+      day: timelineDayInput.value.trim(),
       title
     });
     timelineYearInput.value = '';
     timelineDetailInput.value = '';
+    timelineDayInput.value = '';
     timelineTitleInput.value = '';
     savePeople();
     renderDetail();
