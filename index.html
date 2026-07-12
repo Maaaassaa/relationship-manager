@@ -693,6 +693,20 @@
     </div>
 
     <div class="detail-section">
+      <h3>年表</h3>
+      <div class="timeline" id="timelineList"></div>
+      <div class="timeline-empty" id="timelineEmpty" style="display:none;">まだ登録されていません</div>
+      <div class="add-row">
+        <div class="two-col">
+          <input type="number" id="timelineYearInput" placeholder="年（例：2000）">
+          <input type="text" id="timelineDetailInput" placeholder="月など（任意）">
+        </div>
+        <input type="text" id="timelineTitleInput" placeholder="できごと（例：結婚）">
+        <button type="button" class="btn btn-ghost" id="addTimelineBtn">追加</button>
+      </div>
+    </div>
+
+    <div class="detail-section">
       <h3>現状の情報</h3>
       <div class="info-row"><span class="info-label">グループ</span><span class="info-value" id="detailGroupText"></span></div>
       <div class="info-row"><span class="info-label">生年月日</span><span class="info-value" id="detailBirthdate"></span></div>
@@ -725,20 +739,6 @@
       <div class="photo-grid" id="photoGrid"></div>
       <input type="file" id="galleryInput" accept="image/*" multiple>
       <button type="button" class="btn btn-ghost" id="addPhotoBtn">＋ 写真を追加</button>
-    </div>
-
-    <div class="detail-section">
-      <h3>年表</h3>
-      <div class="timeline" id="timelineList"></div>
-      <div class="timeline-empty" id="timelineEmpty" style="display:none;">まだ登録されていません</div>
-      <div class="add-row">
-        <div class="two-col">
-          <input type="number" id="timelineYearInput" placeholder="年（例：2000）">
-          <input type="text" id="timelineDetailInput" placeholder="月など（任意）">
-        </div>
-        <input type="text" id="timelineTitleInput" placeholder="できごと（例：結婚）">
-        <button type="button" class="btn btn-ghost" id="addTimelineBtn">追加</button>
-      </div>
     </div>
 
     <div class="detail-footer">
