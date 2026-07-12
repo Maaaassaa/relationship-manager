@@ -849,22 +849,36 @@
     return data.id;
   }
 
+  function mergePeopleData(localList, remoteList) {
+    const merged = new Map();
+    remoteList.forEach(p => merged.set(p.id, p));
+    localList.forEach(p => merged.set(p.id, p));
+    return Array.from(merged.values());
+  }
+
   async function loadFromDrive() {
     try {
       let fileId = await findDriveFile();
       if (!fileId) {
         fileId = await createDriveFile(people);
+        driveFileId = fileId;
+        setSyncStatus(`同期済み（${new Date().toLocaleTimeString('ja-JP')}）`);
+        return;
       }
       driveFileId = fileId;
       const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
         headers: { Authorization: `Bearer ${driveAccessToken}` }
       });
       const remoteData = await res.json();
-      if (Array.isArray(remoteData) && remoteData.length > 0) {
+      if (Array.isArray(remoteData)) {
         remoteData.forEach(ensurePersonDefaults);
-        people = remoteData;
+        const merged = mergePeopleData(people, remoteData);
+        people = merged;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
         render();
+        if (merged.length !== remoteData.length) {
+          await pushToDrive();
+        }
       }
       setSyncStatus(`同期済み（${new Date().toLocaleTimeString('ja-JP')}）`);
     } catch (err) {
