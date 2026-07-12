@@ -434,23 +434,32 @@
     gap: 30px;
     overflow-x: scroll;
     padding: 18px 10px 14px;
-    margin: 0 -10px 10px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent) transparent;
+    margin: 0 -10px 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   .timeline::-webkit-scrollbar {
-    height: 7px;
+    display: none;
   }
-  .timeline::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .timeline::-webkit-scrollbar-thumb {
+  .timeline-scrollbar-track {
+    position: relative;
+    height: 6px;
     background: var(--border);
-    border-radius: 4px;
+    border-radius: 3px;
+    margin: 0 0 14px;
+    cursor: pointer;
   }
-  .timeline::-webkit-scrollbar-thumb:hover {
+  .timeline-scrollbar-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
     background: var(--accent);
+    border-radius: 3px;
+    cursor: grab;
   }
+  .timeline-scrollbar-thumb:active { cursor: grabbing; }
   .timeline-item {
     position: relative;
     flex: 0 0 auto;
@@ -710,6 +719,9 @@
     <div class="detail-section">
       <h3>年表</h3>
       <div class="timeline" id="timelineList"></div>
+      <div class="timeline-scrollbar-track" id="timelineScrollbarTrack">
+        <div class="timeline-scrollbar-thumb" id="timelineScrollbarThumb"></div>
+      </div>
       <div class="timeline-empty" id="timelineEmpty" style="display:none;">まだ登録されていません</div>
       <div class="add-row">
         <div class="two-col">
@@ -833,6 +845,8 @@
   const addPhotoBtn = document.getElementById('addPhotoBtn');
   const timelineList = document.getElementById('timelineList');
   const timelineEmpty = document.getElementById('timelineEmpty');
+  const timelineScrollbarTrack = document.getElementById('timelineScrollbarTrack');
+  const timelineScrollbarThumb = document.getElementById('timelineScrollbarThumb');
   const timelineYearInput = document.getElementById('timelineYearInput');
   const timelineDetailInput = document.getElementById('timelineDetailInput');
   const timelineTitleInput = document.getElementById('timelineTitleInput');
@@ -1665,6 +1679,7 @@
       item.appendChild(removeBtn);
       timelineList.appendChild(item);
     });
+    updateTimelineScrollbar();
   }
 
   function addLikeHandler() {
@@ -1735,6 +1750,59 @@
       e.preventDefault();
       addTimelineHandler();
     }
+  });
+
+  function updateTimelineScrollbar() {
+    const trackWidth = timelineScrollbarTrack.clientWidth;
+    const contentWidth = timelineList.scrollWidth;
+    const visibleWidth = timelineList.clientWidth;
+    if (trackWidth === 0 || contentWidth === 0) return;
+    const ratio = Math.min(1, visibleWidth / contentWidth);
+    const thumbWidth = Math.max(30, trackWidth * ratio);
+    const maxScrollLeft = Math.max(0, contentWidth - visibleWidth);
+    const scrollRatio = maxScrollLeft > 0 ? timelineList.scrollLeft / maxScrollLeft : 0;
+    const maxThumbLeft = trackWidth - thumbWidth;
+    timelineScrollbarThumb.style.width = thumbWidth + 'px';
+    timelineScrollbarThumb.style.left = (maxThumbLeft * scrollRatio) + 'px';
+  }
+
+  timelineList.addEventListener('scroll', updateTimelineScrollbar);
+  window.addEventListener('resize', updateTimelineScrollbar);
+
+  let timelineDragging = false;
+  let timelineDragStartX = 0;
+  let timelineDragStartScrollLeft = 0;
+
+  timelineScrollbarThumb.addEventListener('mousedown', e => {
+    timelineDragging = true;
+    timelineDragStartX = e.clientX;
+    timelineDragStartScrollLeft = timelineList.scrollLeft;
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!timelineDragging) return;
+    const trackWidth = timelineScrollbarTrack.clientWidth;
+    const contentWidth = timelineList.scrollWidth;
+    const visibleWidth = timelineList.clientWidth;
+    const maxScrollLeft = Math.max(0, contentWidth - visibleWidth);
+    const deltaX = e.clientX - timelineDragStartX;
+    const scrollDelta = trackWidth > 0 ? (deltaX / trackWidth) * contentWidth : 0;
+    timelineList.scrollLeft = Math.max(0, Math.min(maxScrollLeft, timelineDragStartScrollLeft + scrollDelta));
+  });
+
+  document.addEventListener('mouseup', () => {
+    timelineDragging = false;
+  });
+
+  timelineScrollbarTrack.addEventListener('click', e => {
+    if (e.target === timelineScrollbarThumb) return;
+    const rect = timelineScrollbarTrack.getBoundingClientRect();
+    const clickRatio = (e.clientX - rect.left) / rect.width;
+    const contentWidth = timelineList.scrollWidth;
+    const visibleWidth = timelineList.clientWidth;
+    const maxScrollLeft = Math.max(0, contentWidth - visibleWidth);
+    timelineList.scrollLeft = clickRatio * maxScrollLeft;
   });
 
   detailFamilyInput.addEventListener('input', () => {
