@@ -1215,6 +1215,25 @@
     updateSyncUI(false);
   });
 
+  let driveResyncInFlight = false;
+  async function autoResyncFromDrive() {
+    if (!GOOGLE_SYNC_ENABLED || !driveAccessToken || !driveFileId) return;
+    if (document.visibilityState === 'hidden') return;
+    if (driveResyncInFlight) return;
+    driveResyncInFlight = true;
+    try {
+      await loadFromDrive();
+    } finally {
+      driveResyncInFlight = false;
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') autoResyncFromDrive();
+  });
+  window.addEventListener('focus', autoResyncFromDrive);
+  setInterval(autoResyncFromDrive, 30000);
+
   initGoogleAuth();
 
   function calcAge(birthdate) {
