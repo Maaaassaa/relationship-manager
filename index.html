@@ -665,6 +665,7 @@
 <script>
 (function () {
   const STORAGE_KEY = 'relationship-manager-people';
+  const DELETED_IDS_KEY = 'relationship-manager-deleted-ids';
   const MAX_PHOTO_DIM = 400;
 
   // Google Drive同期の設定
@@ -677,6 +678,7 @@
   const PREFECTURES = PREFECTURE_LIST.map(p => p.n);
 
   let people = loadPeople();
+  let deletedIds = loadDeletedIds();
   let editingId = null;
   let pendingPhoto = null;
   let detailId = null;
@@ -743,6 +745,25 @@
       console.error('読み込みに失敗しました', e);
       return [];
     }
+  }
+
+  function loadDeletedIds() {
+    try {
+      const raw = localStorage.getItem(DELETED_IDS_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(list) ? list : []);
+    } catch (e) {
+      return new Set();
+    }
+  }
+
+  function saveDeletedIds() {
+    localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(deletedIds)));
+  }
+
+  function markDeleted(id) {
+    deletedIds.add(id);
+    saveDeletedIds();
   }
 
   function ensurePersonDefaults(p) {
@@ -849,10 +870,11 @@
     return data.id;
   }
 
-  function mergePeopleData(localList, remoteList) {
+  function mergePeopleData(localList, remoteList, mergedDeletedIds) {
     const merged = new Map();
     remoteList.forEach(p => merged.set(p.id, p));
     localList.forEach(p => merged.set(p.id, p));
+    mergedDeletedIds.forEach(id => merged.delete(id));
     return Array.from(merged.values());
   }
 
@@ -860,7 +882,7 @@
     try {
       let fileId = await findDriveFile();
       if (!fileId) {
-        fileId = await createDriveFile(people);
+        fileId = await createDriveFile({ people, deletedIds: Array.from(deletedIds) });
         driveFileId = fileId;
         setSyncStatus(`同期済み（${new Date().toLocaleTimeString('ja-JP')}）`);
         return;
@@ -869,18 +891,28 @@
       const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
         headers: { Authorization: `Bearer ${driveAccessToken}` }
       });
-      const remoteData = await res.json();
-      if (Array.isArray(remoteData)) {
-        remoteData.forEach(ensurePersonDefaults);
-        const merged = mergePeopleData(people, remoteData);
-        people = merged;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
-        render();
-        if (merged.length !== remoteData.length) {
-          await pushToDrive();
-        }
+      const remoteRaw = await res.json();
+      const remotePayload = Array.isArray(remoteRaw) ? { people: remoteRaw, deletedIds: [] } : (remoteRaw || {});
+      const remotePeople = Array.isArray(remotePayload.people) ? remotePayload.people : [];
+      const remoteDeletedIds = Array.isArray(remotePayload.deletedIds) ? remotePayload.deletedIds : [];
+
+      remotePeople.forEach(ensurePersonDefaults);
+
+      const mergedDeletedIds = new Set([...deletedIds, ...remoteDeletedIds]);
+      const merged = mergePeopleData(people, remotePeople, mergedDeletedIds);
+
+      people = merged;
+      deletedIds = mergedDeletedIds;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
+      saveDeletedIds();
+      render();
+
+      const remoteUpToDate = remotePeople.length === merged.length && remoteDeletedIds.length === mergedDeletedIds.size;
+      if (!remoteUpToDate) {
+        await pushToDrive();
+      } else {
+        setSyncStatus(`同期済み（${new Date().toLocaleTimeString('ja-JP')}）`);
       }
-      setSyncStatus(`同期済み（${new Date().toLocaleTimeString('ja-JP')}）`);
     } catch (err) {
       console.error(err);
       setSyncStatus('同期エラー');
@@ -896,7 +928,7 @@
           Authorization: `Bearer ${driveAccessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(people)
+        body: JSON.stringify({ people, deletedIds: Array.from(deletedIds) })
       });
       setSyncStatus(`同期済み（${new Date().toLocaleTimeString('ja-JP')}）`);
     } catch (err) {
@@ -1382,6 +1414,7 @@
   deleteBtn.addEventListener('click', () => {
     if (!editingId) return;
     if (!confirm('この人物を削除しますか？')) return;
+    markDeleted(editingId);
     people = people.filter(p => p.id !== editingId);
     savePeople();
     render();
@@ -1510,6 +1543,7 @@
   detailDeleteBtn.addEventListener('click', () => {
     if (!detailId) return;
     if (!confirm('この人物を削除しますか？')) return;
+    markDeleted(detailId);
     people = people.filter(p => p.id !== detailId);
     savePeople();
     render();
